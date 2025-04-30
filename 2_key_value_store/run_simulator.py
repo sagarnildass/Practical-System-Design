@@ -17,10 +17,10 @@ def main():
     """Run the key-value store simulator."""
     # Create simulator
     simulator = KeyValueStoreSimulator(num_nodes=5, replication_factor=3)
-    
+
     # Run the simulation
     simulator.run_simulation()
 
 
 if __name__ == "__main__":
-    main() 
+    main()
