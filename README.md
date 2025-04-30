@@ -28,14 +28,6 @@ A from-scratch implementation of a distributed key-value store demonstrating cor
 - **Conflict Detection**: Identifies conflicting writes across replicas
 - **Gossip Protocol**: Detects node failures and maintains membership
 
-#### Components
-- `vector_clock.py` - Implementation of vector clocks for versioning
-- `consistent_hash.py` - Implementation of consistent hashing for data partitioning
-- `data_store.py` - Local key-value storage with versioned values
-- `node.py` - Core node implementation with gossip protocol and request handling
-- `client.py` - Client interface for interacting with the distributed system
-- `simulator.py` - Simulator to demonstrate the system's behavior
-
 ## Learning Goals
 
 This repository aims to provide:
