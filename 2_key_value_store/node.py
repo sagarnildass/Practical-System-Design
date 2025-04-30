@@ -4,7 +4,6 @@ import random
 import logging
 from typing import Dict, List, Tuple, Any, Optional, Set
 import copy
-import json
 import gc
 
 from consistent_hash import ConsistentHash

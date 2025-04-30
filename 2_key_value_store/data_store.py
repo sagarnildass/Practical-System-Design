@@ -157,7 +157,6 @@ class DataStore:
             key: The key being updated
             new_version: The new versioned value
         """
-        non_conflicting_versions = []
         conflicting_versions = []
 
         # Track if the new version is a descendant of any existing version
