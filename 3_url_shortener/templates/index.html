@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Shortener</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            display: none;
+        }
+        .short-url {
+            font-weight: bold;
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <h1>URL Shortener</h1>
+    <div class="container">
+        <div class="form-group">
+            <label for="long-url">Enter a long URL to shorten:</label>
+            <input type="text" id="long-url" placeholder="https://example.com/very/long/url">
+        </div>
+        <button id="shorten-btn">Shorten URL</button>
+        <div class="result" id="result">
+            <h3>Shortened URL:</h3>
+            <p>Your short URL is: <a href="#" id="short-url" class="short-url"></a></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('shorten-btn').addEventListener('click', function() {
+            var longUrl = document.getElementById('long-url').value;
+            
+            if (!longUrl) {
+                alert('Please enter a URL');
+                return;
+            }
+            
+            fetch('/api/v1/shorten', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    url: longUrl
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.message);
+                } else {
+                    document.getElementById('short-url').href = data.short_url;
+                    document.getElementById('short-url').textContent = data.short_url;
+                    document.getElementById('result').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+    </script>
+</body>
+</html>
+        

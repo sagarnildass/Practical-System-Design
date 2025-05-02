@@ -28,6 +28,19 @@ A from-scratch implementation of a distributed key-value store demonstrating cor
 - **Conflict Detection**: Identifies conflicting writes across replicas
 - **Gossip Protocol**: Detects node failures and maintains membership
 
+### 3. URL Shortener
+
+A scalable URL shortening service similar to TinyURL or Bit.ly with a focus on high performance and reliability.
+
+#### Features
+- **Base62 Encoding**: Efficiently converts IDs to short URL strings using alphanumeric characters
+- **Distributed ID Generation**: Snowflake-inspired approach for unique, sortable IDs
+- **Caching Layer**: Redis implementation for high-performance URL retrieval
+- **Database Persistence**: MySQL storage with connection pooling
+- **API Design**: RESTful API with rate limiting for URL operations
+- **Analytics**: Click tracking and basic statistics
+- **High Read Throughput**: Optimized for the read-heavy workload typical of URL shorteners
+
 ## Learning Goals
 
 This repository aims to provide:
@@ -55,4 +68,11 @@ Planned additions to this repository:
 - Consensus algorithms implementation
 - Load balancer design
 - Content delivery network (CDN)
+
+## Contributing
+
+To add a new system design to this repository:
+1. Create a new numbered directory (e.g., `4_rate_limiter`)
+2. Implement your system with clear documentation
+3. Update this README to include your implementation
 
