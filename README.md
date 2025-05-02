@@ -41,6 +41,22 @@ A scalable URL shortening service similar to TinyURL or Bit.ly with a focus on h
 - **Analytics**: Click tracking and basic statistics
 - **High Read Throughput**: Optimized for the read-heavy workload typical of URL shorteners
 
+### 4. Web Crawler
+
+A distributed web crawler system capable of efficiently discovering, downloading, and processing web content at scale.
+
+#### Features
+- **URL Frontier**: Advanced URL queue management with priority-based scheduling
+- **Politeness Policy**: Rate limiting per domain with robots.txt compliance
+- **DNS Caching**: Optimized DNS resolver with TTL-based caching
+- **Content Deduplication**: Detects and filters duplicate content
+- **Distributed Architecture**: Scales horizontally across multiple crawler instances
+- **MongoDB Storage**: Persistent storage of crawled URLs and metadata
+- **Redis Queuing**: High-performance distributed queue implementation
+- **REST API**: Control and monitor the crawler through RESTful endpoints
+- **Domain Filtering**: Ability to restrict crawling to specific domains
+- **Metadata Extraction**: Extracts page titles, descriptions, and other metadata
+
 ## Learning Goals
 
 This repository aims to provide:
@@ -72,7 +88,7 @@ Planned additions to this repository:
 ## Contributing
 
 To add a new system design to this repository:
-1. Create a new numbered directory (e.g., `4_rate_limiter`)
+1. Create a new numbered directory (e.g., `5_rate_limiter`)
 2. Implement your system with clear documentation
 3. Update this README to include your implementation
 
