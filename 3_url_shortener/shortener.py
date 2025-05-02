@@ -151,7 +151,8 @@ class URLShortener:
             short_url (str): The shortened URL
             
         Returns:
-            dict: Statistics including click count, or None if not found
+            dict: Statistics including click count, created date, referrers, user agents,
+                 and recent clicks, or None if not found
         """
         # First, check if the URL exists
         url_id, long_url = URLShortener.get_long_url(short_url)
@@ -168,8 +169,20 @@ class URLShortener:
         else:
             clicks = cache_clicks
         
+        # Get additional analytics data
+        created_at = URLRepository.get_url_created_time(url_id)
+        last_clicked = URLRepository.get_last_click_time(url_id)
+        top_referrers = URLRepository.get_top_referrers(url_id, limit=5)
+        top_browsers = URLRepository.get_top_browsers(url_id, limit=5)
+        recent_clicks = URLRepository.get_recent_clicks(url_id, limit=10)
+        
         return {
             'short_url': short_url,
             'long_url': long_url,
-            'clicks': clicks
+            'clicks': clicks,
+            'created_at': created_at,
+            'last_clicked': last_clicked,
+            'referrers': top_referrers,
+            'browsers': top_browsers,
+            'recent_clicks': recent_clicks
         } 

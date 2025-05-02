@@ -8,7 +8,7 @@ import logging
 import time
 import os
 from datetime import datetime
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Dict, List, Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -225,5 +225,194 @@ class URLRepository:
         except sqlite3.Error as e:
             logger.error(f"Error getting click count: {e}")
             return 0
+        finally:
+            conn.close()
+            
+    @staticmethod
+    def get_url_created_time(url_id: int) -> Optional[str]:
+        """
+        Get the creation time of a URL
+        
+        Args:
+            url_id (int): The ID of the URL
+            
+        Returns:
+            str: ISO formatted creation timestamp, or None if an error occurred
+        """
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+            SELECT created_at FROM urls
+            WHERE id = ?
+            """, (url_id,))
+            
+            result = cursor.fetchone()
+            return result['created_at'] if result else None
+            
+        except sqlite3.Error as e:
+            logger.error(f"Error getting URL creation time: {e}")
+            return None
+        finally:
+            conn.close()
+            
+    @staticmethod
+    def get_last_click_time(url_id: int) -> Optional[str]:
+        """
+        Get the time of the most recent click
+        
+        Args:
+            url_id (int): The ID of the URL
+            
+        Returns:
+            str: ISO formatted timestamp of the last click, or None if no clicks or error
+        """
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+            SELECT clicked_at FROM clicks
+            WHERE url_id = ?
+            ORDER BY clicked_at DESC
+            LIMIT 1
+            """, (url_id,))
+            
+            result = cursor.fetchone()
+            return result['clicked_at'] if result else None
+            
+        except sqlite3.Error as e:
+            logger.error(f"Error getting last click time: {e}")
+            return None
+        finally:
+            conn.close()
+            
+    @staticmethod
+    def get_top_referrers(url_id: int, limit: int = 5) -> Dict[str, int]:
+        """
+        Get the top referrers for a URL
+        
+        Args:
+            url_id (int): The ID of the URL
+            limit (int): Maximum number of referrers to return
+            
+        Returns:
+            dict: Dictionary mapping referrer to count
+        """
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+            SELECT referrer, COUNT(*) as count FROM clicks
+            WHERE url_id = ? AND referrer IS NOT NULL AND referrer != ''
+            GROUP BY referrer
+            ORDER BY count DESC
+            LIMIT ?
+            """, (url_id, limit))
+            
+            results = cursor.fetchall()
+            referrers = {row['referrer'] or 'Direct': row['count'] for row in results}
+            
+            return referrers
+            
+        except sqlite3.Error as e:
+            logger.error(f"Error getting top referrers: {e}")
+            return {}
+        finally:
+            conn.close()
+            
+    @staticmethod
+    def get_top_browsers(url_id: int, limit: int = 5) -> Dict[str, int]:
+        """
+        Get the top browsers used to access a URL
+        
+        Args:
+            url_id (int): The ID of the URL
+            limit (int): Maximum number of browsers to return
+            
+        Returns:
+            dict: Dictionary mapping browser to count
+        """
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+            SELECT user_agent, COUNT(*) as count FROM clicks
+            WHERE url_id = ? AND user_agent IS NOT NULL AND user_agent != ''
+            GROUP BY user_agent
+            ORDER BY count DESC
+            LIMIT ?
+            """, (url_id, limit))
+            
+            results = cursor.fetchall()
+            
+            # Simple browser extraction, in a real app would use a proper user-agent parser
+            browsers = {}
+            for row in results:
+                user_agent = row['user_agent']
+                browser = "Unknown"
+                
+                if 'Chrome' in user_agent and 'Edg' in user_agent:
+                    browser = 'Edge'
+                elif 'Chrome' in user_agent and 'Safari' in user_agent:
+                    browser = 'Chrome'
+                elif 'Firefox' in user_agent:
+                    browser = 'Firefox'
+                elif 'Safari' in user_agent:
+                    browser = 'Safari'
+                    
+                browsers[browser] = browsers.get(browser, 0) + row['count']
+                
+            return browsers
+            
+        except sqlite3.Error as e:
+            logger.error(f"Error getting top browsers: {e}")
+            return {}
+        finally:
+            conn.close()
+            
+    @staticmethod
+    def get_recent_clicks(url_id: int, limit: int = 10) -> List[Dict[str, Any]]:
+        """
+        Get the most recent clicks for a URL
+        
+        Args:
+            url_id (int): The ID of the URL
+            limit (int): Maximum number of clicks to return
+            
+        Returns:
+            list: List of dictionaries with click information
+        """
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+            SELECT clicked_at, ip_address, user_agent, referrer FROM clicks
+            WHERE url_id = ?
+            ORDER BY clicked_at DESC
+            LIMIT ?
+            """, (url_id, limit))
+            
+            results = cursor.fetchall()
+            
+            # Convert to list of dictionaries
+            recent_clicks = []
+            for row in results:
+                recent_clicks.append({
+                    'time': row['clicked_at'],
+                    'ip': row['ip_address'],
+                    'referrer': row['referrer'] or 'Direct',
+                    'user_agent': row['user_agent']
+                })
+                
+            return recent_clicks
+            
+        except sqlite3.Error as e:
+            logger.error(f"Error getting recent clicks: {e}")
+            return []
         finally:
             conn.close() 

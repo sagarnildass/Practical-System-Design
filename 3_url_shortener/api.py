@@ -4,7 +4,7 @@ API endpoints for the URL shortener service.
 
 import time
 import logging
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, List
 from fastapi import FastAPI, Request, Response, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
@@ -65,6 +65,11 @@ class StatsResponse(BaseModel):
     short_url: str
     long_url: str
     clicks: int
+    created_at: Optional[str] = None
+    last_clicked: Optional[str] = None
+    referrers: Optional[Dict[str, int]] = None
+    browsers: Optional[Dict[str, int]] = None
+    recent_clicks: Optional[List[Dict[str, Any]]] = None
 
 # Create the template files
 def create_templates():
@@ -364,7 +369,8 @@ async def get_stats(short_url: str, client_ip: str = Depends(rate_limiter)):
     
     - **short_url**: The shortened URL code
     
-    Returns statistics like click count
+    Returns detailed statistics including click count, creation date,
+    last clicked time, referrers, browser distribution, and recent clicks
     """
     stats = URLShortener.get_url_stats(short_url)
     
