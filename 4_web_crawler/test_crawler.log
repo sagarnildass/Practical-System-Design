@@ -1,0 +1,65 @@
+2025-05-02 19:38:14,751 [root] INFO: Loaded local configuration
+2025-05-02 19:38:14,889 [root] INFO: Loaded local configuration
+2025-05-02 19:38:14,921 [test_crawler] INFO: Loaded local configuration
+2025-05-02 19:38:14,921 [test_crawler] INFO: Starting crawler component tests
+2025-05-02 19:38:14,921 [test_crawler] INFO: 
+=== Testing Redis ===
+2025-05-02 19:38:14,921 [test_crawler] INFO: Testing Redis connection to redis://localhost:6379/0
+2025-05-02 19:38:14,921 [test_crawler] INFO: Redis connection successful
+2025-05-02 19:38:14,921 [test_crawler] INFO: === Redis test succeeded in 0.00s ===
+
+2025-05-02 19:38:14,921 [test_crawler] INFO: 
+=== Testing Robots.txt ===
+2025-05-02 19:38:14,921 [test_crawler] INFO: Testing robots.txt handling
+2025-05-02 19:38:14,921 [test_crawler] INFO: Checking robots.txt for https://www.google.com/
+2025-05-02 19:38:15,236 [test_crawler] INFO:   Allowed: True, Crawl delay: 0.0
+2025-05-02 19:38:15,236 [test_crawler] INFO: Checking robots.txt for https://www.github.com/
+2025-05-02 19:38:15,848 [test_crawler] INFO:   Allowed: True, Crawl delay: 0.0
+2025-05-02 19:38:15,849 [test_crawler] INFO: Checking robots.txt for https://sagarnildas.com/
+2025-05-02 19:38:16,517 [test_crawler] INFO:   Allowed: True, Crawl delay: 0.0
+2025-05-02 19:38:16,518 [test_crawler] INFO: === Robots.txt test succeeded in 1.60s ===
+
+2025-05-02 19:38:16,518 [test_crawler] INFO: 
+=== Testing DNS Resolver ===
+2025-05-02 19:38:16,518 [test_crawler] INFO: Testing DNS resolver
+2025-05-02 19:38:16,518 [test_crawler] INFO: Resolving www.google.com
+2025-05-02 19:38:16,521 [test_crawler] INFO:   IP: 142.250.70.100
+2025-05-02 19:38:16,522 [test_crawler] INFO: Resolving www.github.com
+2025-05-02 19:38:16,525 [test_crawler] INFO:   IP: 20.207.73.82
+2025-05-02 19:38:16,525 [test_crawler] INFO: Resolving example.com
+2025-05-02 19:38:16,530 [test_crawler] INFO:   IP: 23.192.228.80
+2025-05-02 19:38:16,530 [test_crawler] INFO: === DNS Resolver test succeeded in 0.01s ===
+
+2025-05-02 19:38:16,530 [test_crawler] INFO: 
+=== Testing URL Frontier ===
+2025-05-02 19:38:16,530 [test_crawler] INFO: Testing URL frontier
+2025-05-02 19:38:16,530 [frontier] INFO: URLFrontier using simple mode: True
+2025-05-02 19:38:16,531 [frontier] INFO: Frontier cleared
+2025-05-02 19:38:16,531 [test_crawler] INFO: Added https://www.google.com/: True
+2025-05-02 19:38:16,531 [test_crawler] INFO: Added https://www.github.com/: True
+2025-05-02 19:38:16,531 [test_crawler] INFO: Added https://sagarnildas.com/: True
+2025-05-02 19:38:16,544 [test_crawler] INFO: Frontier size: 3
+2025-05-02 19:38:16,544 [test_crawler] INFO: Next URL: https://www.google.com/ (priority: Priority.MEDIUM)
+2025-05-02 19:38:16,544 [test_crawler] INFO: === URL Frontier test succeeded in 0.01s ===
+
+2025-05-02 19:38:16,544 [test_crawler] INFO: 
+=== Testing HTML Downloader ===
+2025-05-02 19:38:16,544 [test_crawler] INFO: Testing HTML downloader
+2025-05-02 19:38:16,544 [test_crawler] INFO: Downloading https://sagarnildas.com/
+2025-05-02 19:38:17,375 [downloader] INFO: Downloaded 222745 bytes from https://sagarnildas.com/ in 0.44s
+2025-05-02 19:38:17,375 [test_crawler] INFO:   Downloaded 222745 bytes, status: 200
+2025-05-02 19:38:17,398 [test_crawler] INFO:   Extracted 53 URLs and 8 metadata items
+2025-05-02 19:38:17,398 [test_crawler] INFO: Downloading https://www.google.com/
+2025-05-02 19:38:18,231 [downloader] INFO: Downloaded 56208 bytes from https://www.google.com/ in 0.55s
+2025-05-02 19:38:18,231 [test_crawler] INFO:   Downloaded 56208 bytes, status: 200
+2025-05-02 19:38:18,239 [test_crawler] INFO:   Extracted 37 URLs and 3 metadata items
+2025-05-02 19:38:18,239 [test_crawler] INFO: === HTML Downloader test succeeded in 1.70s ===
+
+2025-05-02 19:38:18,239 [test_crawler] INFO: 
+=== Test Summary ===
+2025-05-02 19:38:18,239 [test_crawler] INFO: Redis: SUCCESS (0.00s)
+2025-05-02 19:38:18,239 [test_crawler] INFO: Robots.txt: SUCCESS (1.60s)
+2025-05-02 19:38:18,239 [test_crawler] INFO: DNS Resolver: SUCCESS (0.01s)
+2025-05-02 19:38:18,239 [test_crawler] INFO: URL Frontier: SUCCESS (0.01s)
+2025-05-02 19:38:18,239 [test_crawler] INFO: HTML Downloader: SUCCESS (1.70s)
+2025-05-02 19:38:18,239 [test_crawler] INFO: All tests passed!

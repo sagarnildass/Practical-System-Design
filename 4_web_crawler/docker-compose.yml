@@ -1,0 +1,79 @@
+version: '3'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: crawler-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_DATABASE=webcrawler
+    networks:
+      - crawler-network
+
+  redis:
+    image: redis:latest
+    container_name: crawler-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - crawler-network
+
+  web-crawler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: web-crawler
+    volumes:
+      - ./:/app
+      - crawler_data:/data/storage
+    ports:
+      - "9100:9100"
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/
+      - REDIS_URI=redis://redis:6379/0
+      - LOG_LEVEL=INFO
+      - MAX_WORKERS=4
+    networks:
+      - crawler-network
+    command: python crawl.py start --workers=4
+
+  crawler-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crawler-api
+    volumes:
+      - ./:/app
+      - crawler_data:/data/storage
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+      - redis
+      - web-crawler
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/
+      - REDIS_URI=redis://redis:6379/0
+      - LOG_LEVEL=INFO
+    networks:
+      - crawler-network
+    command: python api.py
+
+networks:
+  crawler-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  redis_data:
+  crawler_data: 
