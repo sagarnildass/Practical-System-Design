@@ -57,6 +57,23 @@ A distributed web crawler system capable of efficiently discovering, downloading
 - **Domain Filtering**: Ability to restrict crawling to specific domains
 - **Metadata Extraction**: Extracts page titles, descriptions, and other metadata
 
+### 5. News Feed System
+
+A highly scalable, real-time social media news feed system similar to platforms like Twitter, Facebook, or Instagram that efficiently processes and displays personalized content.
+
+#### Features
+- **Multi-tier Architecture**: Separated data, cache, business logic, and API layers
+- **Fanout Service**: Efficient content distribution using push/pull hybrid model
+- **Five-tier Caching**: Specialized Redis caches for feeds, content, social graph, actions, and counters
+- **MongoDB Storage**: Persistent document storage with efficient indexes
+- **Content Personalization**: Customized feeds based on follow relationships
+- **Social Interactions**: Support for like, comment, and share actions
+- **Optimistic UI Updates**: Immediate feedback with background synchronization
+- **FastAPI Backend**: High-performance, async REST API with dependency injection
+- **React Frontend**: Modern UI with component-based architecture
+- **Celebrity Problem Handling**: Special strategies for high-follower accounts
+- **RESTful API Design**: Comprehensive endpoints for all social operations
+
 ## Learning Goals
 
 This repository aims to provide:
@@ -88,7 +105,7 @@ Planned additions to this repository:
 ## Contributing
 
 To add a new system design to this repository:
-1. Create a new numbered directory (e.g., `5_rate_limiter`)
+1. Create a new numbered directory (e.g., `6_rate_limiter`)
 2. Implement your system with clear documentation
 3. Update this README to include your implementation
 
