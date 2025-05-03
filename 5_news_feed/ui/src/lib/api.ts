@@ -130,8 +130,8 @@ export async function followUser(userId: string, targetUserId: string): Promise<
 }
 
 export async function unfollowUser(userId: string, targetUserId: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/users/${targetUserId}/unfollow`, {
-    method: 'POST',
+  const response = await fetch(`${API_BASE_URL}/users/${targetUserId}/follow`, {
+    method: 'DELETE',
     headers: {
       'X-User-ID': userId
     }

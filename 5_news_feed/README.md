@@ -2,6 +2,111 @@
 
 A highly scalable, real-time news feed system similar to social media platforms like Twitter, Facebook, or Instagram. This system processes and displays content updates from followed accounts in a user's personalized feed.
 
+## Getting Started
+
+### Prerequisites
+
+- Python 3.7+
+- MongoDB
+- Redis
+- Node.js and npm (for the UI)
+
+### Installation
+
+1. **Backend Setup**:
+   ```bash
+   # Install backend dependencies
+   pip install -r requirements.txt
+   
+   # Configure environment variables or update config.py
+   
+   # Start the API server
+   uvicorn api:app --host 0.0.0.0 --port 8000 --reload
+   ```
+
+2. **Frontend Setup**:
+   ```bash
+   # Navigate to the UI directory
+   cd ui
+   
+   # Install frontend dependencies
+   npm install
+   
+   # Start the development server
+   npm run dev
+   ```
+
+### Creating Virtual Users and Content
+
+To populate the system with sample data:
+
+1. **Run the test script to create users and content**:
+   ```bash
+   python test_api.py
+   ```
+
+   This will create:
+   - Several test users (Alice, Bob, Charlie, Diana, Emma, etc.)
+   - Sample posts for each user
+   - Follow relationships between users
+   - Various interactions (likes, comments, shares)
+
+2. **Alternatively, use the API directly**:
+   ```bash
+   # Create a new user
+   curl -X POST "http://localhost:8000/api/users" -H "Content-Type: application/json" -d '{"username":"newuser","email":"newuser@example.com"}'
+   
+   # Create a post
+   curl -X POST "http://localhost:8000/api/posts" -H "Content-Type: application/json" -H "X-User-ID: USER_ID_HERE" -d '{"content":"Hello world!","post_type":"TEXT"}'
+   ```
+
+3. **Set up user relationships**:
+   ```bash
+   # Make one user follow another
+   curl -X POST "http://localhost:8000/api/users/TARGET_USER_ID/follow" -H "X-User-ID: FOLLOWER_USER_ID"
+   ```
+
+## Using the UI
+
+1. **Select a User**: Use the dropdown at the top to choose which user you want to interact as.
+
+2. **Browse the Feed**: The feed tab shows posts from users you follow, including their original posts, shares, and interactions.
+
+3. **User Posts**: View and create posts from the selected user.
+
+4. **Network**: See followers and following, with options to follow back or unfollow users.
+
+5. **Interactions**:
+   - Like/unlike posts with the heart button
+   - Comment on posts using the comment button
+   - Share posts using the share button and adding your comment
+
+## Features
+
+### Core Features
+
+- **User Management**: Create accounts, update profiles, follow/unfollow users
+- **Content Creation**: Post text, images, videos, and links
+- **Social Interactions**: Like, comment, and share posts
+- **Personalized Feeds**: View content from followed accounts
+- **Network Management**: View followers and following lists
+
+### UI Features
+
+- **Responsive Design**: Works on desktop and mobile devices
+- **Real-time Updates**: Actions like follows/unfollows update immediately
+- **User Switching**: Test different user perspectives without logging out
+- **Content Hierarchy**: Clear visual distinction between posts, shares, and comments
+- **Interactive Elements**: Buttons for likes, comments, shares with immediate feedback
+
+### Backend Features
+
+- **Scalable Architecture**: Multi-tier design with caching and database layers
+- **Efficient Fanout**: Smart distribution of content to user feeds
+- **Caching Strategy**: Five-tier Redis caching for performance
+- **API-First Design**: RESTful endpoints for all operations
+- **Data Consistency**: Reliable data storage with optimistic UI updates
+
 ## Architecture Overview
 
 The news feed system follows a multi-tier architecture with the following key components:
@@ -12,6 +117,7 @@ The news feed system follows a multi-tier architecture with the following key co
 4. **Fanout Service**: Efficient distribution of new posts to follower feeds
 5. **Feed Service**: Core business logic for feed operations
 6. **RESTful API**: HTTP interface for client applications
+7. **Frontend UI**: React-based user interface with Next.js
 
 ## Components
 
@@ -70,6 +176,14 @@ RESTful API with endpoints for all operations:
 - Feed generation
 - Social interactions
 - Includes authentication, rate limiting, and request logging
+
+### Frontend (`ui/`)
+
+- React-based user interface
+- Next.js framework
+- Tailwind CSS for styling
+- Component-based architecture
+- Responsive design for all devices
 
 ## API Endpoints
 
@@ -130,38 +244,29 @@ RESTful API with endpoints for all operations:
 - Pipeline operations for batch processing
 - Selective cache updates for frequently accessed data
 
-## Setup and Configuration
+## Troubleshooting
 
-Configuration is managed through `config.py`:
+### Common Issues
 
-- Database settings
-- Redis cache parameters
-- Fanout thresholds and batching
-- API rate limits
-- Logging configuration
+1. **API Connection Problems**:
+   - Ensure the API server is running at http://localhost:8000
+   - Check CORS settings if making cross-origin requests
 
-## Requirements
+2. **Missing Content in Feed**:
+   - Verify that users have follow relationships established
+   - Check if posts have been created recently
 
-- Python 3.7+
-- MongoDB
-- Redis
-- Flask
-- PyMongo
-- redis-py
+3. **UI Not Displaying Properly**:
+   - Clear browser cache and refresh
+   - Ensure all npm dependencies are installed
 
-## Running the System
+4. **Database Connection Issues**:
+   - Verify MongoDB is running and accessible
+   - Check connection strings in config
 
-1. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+### Support
 
-2. Configure environment variables or update `config.py`
-
-3. Start the API server:
-   ```
-   python api.py
-   ```
+For additional help, please open an issue in the project repository.
 
 ## Future Enhancements
 

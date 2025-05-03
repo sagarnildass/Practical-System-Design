@@ -162,7 +162,12 @@ export function PostCard({ post, currentUserId, onRefresh, isSharedPost = false 
                     <AvatarImage src={originalPost.profile_picture_url} />
                     <AvatarFallback>{(originalPost.username || 'U').substring(0, 1).toUpperCase()}</AvatarFallback>
                   </Avatar>
-                  <div className="font-medium text-sm">@{originalPost.username || "unknown"}</div>
+                  <div>
+                    <div className="font-medium text-sm">@{originalPost.username || "unknown"}</div>
+                    <div className="text-xs text-gray-500">
+                      {formatDistanceToNow(new Date(originalPost.created_at), { addSuffix: true })}
+                    </div>
+                  </div>
                 </div>
                 <p className="whitespace-pre-line text-sm">{originalPost.content}</p>
               </div>

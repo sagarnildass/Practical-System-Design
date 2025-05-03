@@ -24,6 +24,7 @@ export function UserFeed({ userId }: UserFeedProps) {
       setLoading(true);
       const feedData = await getUserFeed(userId);
       setFeed(feedData.posts);
+      console.log("Original feed:", feedData.posts);
     } catch (err) {
       setError('Failed to load feed');
       console.error(err);
@@ -37,33 +38,51 @@ export function UserFeed({ userId }: UserFeedProps) {
   useEffect(() => {
     if (feed.length === 0) return;
 
-    // Find all parent post IDs from shared posts
-    const sharedPostParentIds = new Set<string>();
+    // Find all parent post IDs from shared posts and comments
+    const parentPostIds = new Set<string>();
     feed.forEach(post => {
-      if (post.post_type === 'SHARE' && post.parent_post_id) {
-        sharedPostParentIds.add(post.parent_post_id);
+      if (post.parent_post_id) {
+        parentPostIds.add(post.parent_post_id);
       }
     });
 
-    // Filter out posts that are already shown as shared content
-    // and filter out comments (they should be attached to posts, not shown separately)
+    console.log("Parent post IDs:", Array.from(parentPostIds));
+
+    // Create a map to group related posts by their ID
+    const postsMap = new Map<string, Post>();
+    feed.forEach(post => {
+      postsMap.set(post.post_id, post);
+    });
+
+    // Filter the feed to only show top-level posts
+    // A post is top-level if:
+    // 1. It's not a comment (post_type is not 'comment')
+    // 2. It's either a regular post or a share
+    // 3. If it's being shared by another post in the feed, we show the share instead
     const filtered = feed.filter(post => {
-      // Comments might be included in the feed but should be displayed attached to posts
-      // Look for characteristics of comments like parent_post_id existing but not being a SHARE type
-      const isComment = 
-        post.parent_post_id && 
-        post.post_type !== 'SHARE' && 
-        (post.post_type === 'TEXT' || post.content.length < 300); // Heuristic: comments are usually shorter
+      // Check if this post has a parent (meaning it's a comment or share)
+      const hasParent = !!post.parent_post_id;
       
-      // Keep only if it's not already displayed as shared content or if it's a share wrapper itself
-      const isNotDuplicate = !sharedPostParentIds.has(post.post_id) || post.post_type === 'SHARE';
+      // Normalize post type to lowercase for case-insensitive comparison
+      const postType = post.post_type.toLowerCase();
       
-      return !isComment && isNotDuplicate;
+      // Check if this post is being shared by another post in the feed
+      const isBeingShared = parentPostIds.has(post.post_id) && 
+        Array.from(postsMap.values()).some(p => 
+          p.parent_post_id === post.post_id && 
+          p.post_type.toLowerCase() === 'share'
+        );
+      
+      // Keep the post if:
+      // 1. It's not a comment
+      // 2. It's not already being shown as a shared content in another post
+      return postType !== 'comment' && !isBeingShared;
     });
 
     // Sort by creation date, newest first
     filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
+    console.log("Processed feed:", filtered);
     setProcessedFeed(filtered);
   }, [feed]);
 
