@@ -117,8 +117,11 @@ class URLFrontier:
         """
         try:
             with self.lock:
+                logger.debug(f"Attempting to add URL to frontier: {url.url}")
+                
                 # Check if URL has been seen
                 if self._is_url_seen(url.normalized_url):
+                    logger.debug(f"URL already seen, skipping: {url.url}")
                     return False
                 
                 # Mark URL as seen
@@ -131,7 +134,7 @@ class URLFrontier:
                 priority_queue = self._get_priority_queue_key(url.priority)
                 self.redis.rpush(priority_queue, url_data)
                 
-                logger.debug(f"Added URL to frontier: {url.url}")
+                logger.debug(f"Successfully added URL to frontier: {url.url} (priority: {url.priority})")
                 return True
         except Exception as e:
             logger.error(f"Error adding URL to frontier: {e}")
@@ -149,15 +152,20 @@ class URLFrontier:
                 # First, select a priority queue using biased random selection
                 priority_queue = self._select_priority_queue()
                 if not priority_queue:
+                    logger.debug("No priority queue available")
                     return None
+                
+                logger.debug(f"Selected priority queue: {priority_queue}")
                 
                 # Get URL from the priority queue
                 url_data = self.redis.lpop(priority_queue)
                 if not url_data:
+                    logger.debug(f"No URLs in priority queue: {priority_queue}")
                     return None
                 
                 # Deserialize URL
                 url = pickle.loads(url_data)
+                logger.debug(f"Got URL from frontier: {url.url}")
                 
                 # Add to host queue for politeness
                 host_queue = self._get_host_queue_key(url.domain)
@@ -176,6 +184,7 @@ class URLFrontier:
                     # Apply crawl delay if needed
                     crawl_delay = config.DOWNLOAD_DELAY
                     if elapsed < crawl_delay:
+                        logger.debug(f"Respecting crawl delay for {url.domain}, waiting {crawl_delay - elapsed:.2f}s")
                         # Put URL back in the priority queue
                         self.redis.lpush(priority_queue, url_data)
                         # Return None to indicate no URL is ready

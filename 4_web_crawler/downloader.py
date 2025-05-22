@@ -12,6 +12,7 @@ import aiohttp
 import asyncio
 from aiohttp.client_exceptions import ClientError
 import hashlib
+import os
 
 from models import URL, Page, calculate_content_hash
 from dns_resolver import DNSResolver
@@ -96,29 +97,36 @@ class HTMLDownloader:
                 url_obj.error = "DNS resolution failed"
                 return None
             
-            # Download page
+            # Download page with specific headers
             start_time = time.time()
             response = self.session.get(
                 url,
                 timeout=config.CRAWL_TIMEOUT,
                 allow_redirects=True,
-                stream=True  # Stream to avoid downloading large files fully
+                stream=True,  # Stream to avoid downloading large files fully
+                headers={
+                    'User-Agent': self.user_agent,
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
+                    'Accept-Language': 'en-US,en;q=0.5',
+                    'Accept-Encoding': 'gzip',  # Only accept gzip to avoid encoding issues
+                    'Connection': 'keep-alive'
+                }
             )
+            
+            # Log response details
+            logger.debug(f"Response status code: {response.status_code}")
+            logger.debug(f"Response headers: {dict(response.headers)}")
             
             # Check content type
             content_type = response.headers.get('Content-Type', '').lower()
-            is_html = any(allowed_type in content_type for allowed_type in config.ALLOWED_CONTENT_TYPES)
+            logger.debug(f"Content type for {url}: {content_type}")
+            
+            is_html = any(allowed_type in content_type for allowed_type in config.ALLOWED_CONTENT_TYPES) or \
+                     any(allowed_type == '*/*' for allowed_type in config.ALLOWED_CONTENT_TYPES)
             
             if not is_html:
                 logger.info(f"Skipping non-HTML content ({content_type}): {url}")
                 url_obj.error = f"Non-HTML content type: {content_type}"
-                return None
-            
-            # Check content length
-            content_length = int(response.headers.get('Content-Length', 0))
-            if content_length > config.MAX_CONTENT_SIZE:
-                logger.info(f"Skipping large content ({content_length} bytes): {url}")
-                url_obj.error = f"Content too large: {content_length} bytes"
                 return None
             
             # Read content (with size limit)
@@ -130,17 +138,68 @@ class HTMLDownloader:
                     url_obj.error = f"Content exceeded max size: {len(content)} bytes"
                     return None
             
-            # Decode content
+            # Log content details
+            logger.debug(f"Downloaded content size: {len(content)} bytes")
+            logger.debug(f"First 100 bytes (hex): {content[:100].hex()}")
+            
+            # Check for UTF-8 BOM
+            if content.startswith(b'\xef\xbb\xbf'):
+                content = content[3:]
+                logger.debug("Removed UTF-8 BOM from content")
+            
+            # Try to detect encoding from response headers
+            encoding = None
+            if 'charset=' in content_type:
+                encoding = content_type.split('charset=')[-1].strip()
+                logger.debug(f"Found encoding in Content-Type header: {encoding}")
+            
+            # Try to detect encoding from content
             try:
-                html_content = content.decode('utf-8')
-            except UnicodeDecodeError:
+                import chardet
+                detected = chardet.detect(content)
+                if detected['confidence'] > 0.8:  # Only use if confidence is high
+                    encoding = detected['encoding']
+                    logger.debug(f"Detected encoding using chardet: {encoding} (confidence: {detected['confidence']})")
+            except ImportError:
+                logger.debug("chardet not available for encoding detection")
+            
+            # Decode content with fallbacks
+            html_content = None
+            encodings_to_try = [
+                encoding,
+                'utf-8',
+                'utf-8-sig',
+                'iso-8859-1',
+                'cp1252',
+                'ascii'
+            ]
+            
+            for enc in encodings_to_try:
+                if not enc:
+                    continue
                 try:
-                    # Try with a more forgiving encoding
-                    html_content = content.decode('iso-8859-1')
+                    html_content = content.decode(enc)
+                    # Quick validation of HTML content
+                    if '<!DOCTYPE' in html_content[:1000] or '<html' in html_content[:1000]:
+                        logger.debug(f"Successfully decoded content using {enc} encoding")
+                        break
+                    else:
+                        logger.debug(f"Decoded with {enc} but content doesn't look like HTML")
+                        html_content = None
                 except UnicodeDecodeError:
-                    logger.warning(f"Failed to decode content for URL: {url}")
-                    url_obj.error = "Failed to decode content"
-                    return None
+                    logger.debug(f"Failed to decode content using {enc} encoding")
+                    continue
+            
+            if html_content is None:
+                logger.warning(f"Failed to decode content for URL: {url} with any encoding")
+                url_obj.error = "Failed to decode content"
+                return None
+            
+            # Additional HTML validation
+            if not any(marker in html_content[:1000] for marker in ['<!DOCTYPE', '<html', '<head', '<body']):
+                logger.warning(f"Content doesn't appear to be valid HTML for URL: {url}")
+                url_obj.error = "Invalid HTML content"
+                return None
             
             # Calculate hash for duplicate detection
             content_hash = calculate_content_hash(html_content)

@@ -24,7 +24,8 @@ ALLOWED_DOMAINS: Optional[List[str]] = None  # Domains to restrict crawling to (
 EXCLUDED_DOMAINS: List[str] = []  # Domains to exclude from crawling
 ALLOWED_SCHEMES = ["http", "https"]  # URL schemes to allow
 URL_FILTERS = [
-    r".*\.(jpg|jpeg|gif|png|js|css|ico|tiff|bmp|mp3|mp4|wav|avi|mov|mpeg|ram|m4v|pdf|rm|smil|wmv|swf|wma|zip|rar|gz)$",
+    # Only filter out binary and media files
+    r".*\.(jpg|jpeg|gif|png|ico|mp3|mp4|wav|avi|mov|mpeg|pdf|zip|rar|gz|exe|dmg|pkg|iso|bin)$",
 ]  # Regex patterns to filter out URLs
 
 # Storage settings
@@ -42,7 +43,13 @@ HOST_QUEUE_NUM = 1000  # Number of host queues for politeness
 
 # Content settings
 MAX_CONTENT_SIZE = 10 * 1024 * 1024  # Maximum size of HTML content to download (10MB)
-ALLOWED_CONTENT_TYPES = ["text/html", "application/xhtml+xml"]  # Allowed content types
+ALLOWED_CONTENT_TYPES = [
+    "text/html",
+    "application/xhtml+xml",
+    "text/plain",  # Some servers might serve HTML as text/plain
+    "application/html",
+    "*/*",  # Accept any content type
+]  # Allowed content types
 
 # DNS settings
 DNS_CACHE_SIZE = 10000  # Maximum number of entries in DNS cache

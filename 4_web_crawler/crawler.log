@@ -463,3 +463,523 @@
 2025-05-02 20:20:26,759 [run_crawler] INFO: Crawler finished
 2025-05-02 20:20:26,798 [crawler] INFO: Received signal 2, shutting down
 2025-05-02 20:20:26,798 [crawler] WARNING: Crawler is not running
+2025-05-22 19:00:28,116 [run_crawler] INFO: Importing crawler modules...
+2025-05-22 19:00:28,273 [root] INFO: Loaded local configuration
+2025-05-22 19:00:28,300 [root] INFO: Loaded local configuration
+2025-05-22 19:00:28,301 [root] INFO: Loaded local configuration
+2025-05-22 19:00:28,337 [run_crawler] INFO: Successfully imported crawler modules
+2025-05-22 19:00:28,337 [run_crawler] DEBUG: Verbose logging enabled
+2025-05-22 19:00:28,337 [run_crawler] INFO: Starting the web crawler...
+2025-05-22 19:00:28,337 [run_crawler] INFO: Resetting MongoDB and flushing Redis data...
+2025-05-22 19:00:28,337 [run_crawler] INFO: Starting MongoDB cleanup...
+2025-05-22 19:00:28,338 [mongo_cleanup] INFO: Connecting to MongoDB...
+2025-05-22 19:00:28,341 [mongo_cleanup] INFO: No collections found in the crawler database
+2025-05-22 19:00:28,341 [mongo_cleanup] INFO: Dropping entire crawler database
+2025-05-22 19:00:28,341 [mongo_cleanup] INFO: Found crawler-related collections in database: webcrawler
+2025-05-22 19:00:28,342 [mongo_cleanup] INFO: Dropping collection webcrawler.urls
+2025-05-22 19:00:28,343 [mongo_cleanup] INFO: Dropping collection webcrawler.pages
+2025-05-22 19:00:28,344 [mongo_cleanup] INFO: Dropping collection webcrawler.stats
+2025-05-22 19:00:28,344 [mongo_cleanup] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:00:28,344 [run_crawler] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:00:28,344 [run_crawler] INFO: Starting Redis flush...
+2025-05-22 19:00:28,344 [run_crawler] DEBUG: Connecting to Redis to flush data...
+2025-05-22 19:00:28,344 [run_crawler] DEBUG: Testing Redis connection...
+2025-05-22 19:00:28,344 [run_crawler] DEBUG: Redis ping result: True
+2025-05-22 19:00:28,344 [run_crawler] INFO: Flushing all Redis data...
+2025-05-22 19:00:28,346 [run_crawler] INFO: Redis flush result: True
+2025-05-22 19:00:28,346 [run_crawler] INFO: Creating crawler instance...
+2025-05-22 19:00:28,346 [frontier] INFO: URLFrontier using simple mode: True
+2025-05-22 19:00:28,347 [frontier] INFO: Initializing URL seen set
+2025-05-22 19:00:28,369 [crawler] INFO: MongoDB indexes created
+2025-05-22 19:00:28,370 [crawler] INFO: Metrics server started on port 9100
+2025-05-22 19:00:28,370 [run_crawler] INFO: Crawler instance created successfully
+2025-05-22 19:00:28,370 [run_crawler] INFO: Setting maximum depth to 3
+2025-05-22 19:00:28,370 [run_crawler] INFO: Respect robots.txt: False
+2025-05-22 19:00:28,370 [run_crawler] INFO: Adding 1 seed URLs
+2025-05-22 19:00:28,370 [run_crawler] DEBUG: Added seed URL: https://sagarnildas.com
+2025-05-22 19:00:28,370 [run_crawler] INFO: Adding seed URLs to frontier...
+2025-05-22 19:00:28,395 [crawler] INFO: Added seed URL: https://sagarnildas.com
+2025-05-22 19:00:28,395 [run_crawler] INFO: Successfully added 1 seed URLs to the frontier
+2025-05-22 19:00:28,395 [run_crawler] INFO: Filtering to domain: sagarnildas.com
+2025-05-22 19:00:28,395 [run_crawler] INFO: Starting crawler with 2 workers...
+2025-05-22 19:00:28,413 [crawler] INFO: Starting crawler with 2 workers
+2025-05-22 19:00:29,722 [downloader] INFO: Downloaded 21927 bytes from https://sagarnildas.com in 0.51s
+2025-05-22 19:01:10,061 [crawler] INFO: Received signal 2, shutting down
+2025-05-22 19:01:10,061 [crawler] INFO: Stopping crawler
+2025-05-22 19:01:10,832 [crawler] INFO: Creating crawler checkpoint
+2025-05-22 19:01:10,862 [frontier] INFO: Frontier checkpoint saved to /media/sagarnildass/d16f4193-0a7d-4eb8-8b71-235a0fc1224e/home/sagarnildass/python_notebooks/system_design_practice/4_web_crawler/storage/frontier_checkpoint.pkl
+2025-05-22 19:01:10,863 [crawler] ERROR: Error creating crawler checkpoint: Object of type datetime is not JSON serializable
+2025-05-22 19:01:10,876 [crawler] INFO: Crawler running for 00:00:42 - Pages: 1 (0.02/s) - Failed: 0 - URLs Discovered: 0 - URLs Filtered: 0 - Domains: 1 - Frontier: 1
+2025-05-22 19:01:10,881 [crawler] INFO: Crawler stopped
+2025-05-22 19:01:10,881 [run_crawler] INFO: Crawler finished
+2025-05-22 19:02:04,002 [run_crawler] INFO: Importing crawler modules...
+2025-05-22 19:02:04,154 [root] INFO: Loaded local configuration
+2025-05-22 19:02:04,180 [root] INFO: Loaded local configuration
+2025-05-22 19:02:04,181 [root] INFO: Loaded local configuration
+2025-05-22 19:02:04,216 [run_crawler] INFO: Successfully imported crawler modules
+2025-05-22 19:02:04,217 [run_crawler] DEBUG: Verbose logging enabled
+2025-05-22 19:02:04,217 [run_crawler] INFO: Starting the web crawler...
+2025-05-22 19:02:04,217 [run_crawler] INFO: Resetting MongoDB and flushing Redis data...
+2025-05-22 19:02:04,217 [run_crawler] INFO: Starting MongoDB cleanup...
+2025-05-22 19:02:04,217 [mongo_cleanup] INFO: Connecting to MongoDB...
+2025-05-22 19:02:04,220 [mongo_cleanup] INFO: No collections found in the crawler database
+2025-05-22 19:02:04,220 [mongo_cleanup] INFO: Dropping entire crawler database
+2025-05-22 19:02:04,220 [mongo_cleanup] INFO: Found crawler-related collections in database: webcrawler
+2025-05-22 19:02:04,220 [mongo_cleanup] INFO: Dropping collection webcrawler.urls
+2025-05-22 19:02:04,221 [mongo_cleanup] INFO: Dropping collection webcrawler.pages
+2025-05-22 19:02:04,221 [mongo_cleanup] INFO: Dropping collection webcrawler.stats
+2025-05-22 19:02:04,221 [mongo_cleanup] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:02:04,221 [run_crawler] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:02:04,221 [run_crawler] INFO: Starting Redis flush...
+2025-05-22 19:02:04,221 [run_crawler] DEBUG: Connecting to Redis to flush data...
+2025-05-22 19:02:04,221 [run_crawler] DEBUG: Testing Redis connection...
+2025-05-22 19:02:04,221 [run_crawler] DEBUG: Redis ping result: True
+2025-05-22 19:02:04,222 [run_crawler] INFO: Flushing all Redis data...
+2025-05-22 19:02:04,223 [run_crawler] INFO: Redis flush result: True
+2025-05-22 19:02:04,223 [run_crawler] INFO: Creating crawler instance...
+2025-05-22 19:02:04,223 [frontier] INFO: URLFrontier using simple mode: True
+2025-05-22 19:02:04,224 [frontier] INFO: Initializing URL seen set
+2025-05-22 19:02:04,252 [crawler] INFO: MongoDB indexes created
+2025-05-22 19:02:04,253 [crawler] INFO: Metrics server started on port 9100
+2025-05-22 19:02:04,253 [run_crawler] INFO: Crawler instance created successfully
+2025-05-22 19:02:04,253 [run_crawler] INFO: Setting maximum depth to 3
+2025-05-22 19:02:04,253 [run_crawler] INFO: Respect robots.txt: False
+2025-05-22 19:02:04,253 [run_crawler] INFO: Adding 1 seed URLs
+2025-05-22 19:02:04,253 [run_crawler] DEBUG: Added seed URL: https://sagarnildas.com
+2025-05-22 19:02:04,253 [run_crawler] INFO: Adding seed URLs to frontier...
+2025-05-22 19:02:04,278 [crawler] INFO: Added seed URL: https://sagarnildas.com
+2025-05-22 19:02:04,278 [run_crawler] INFO: Successfully added 1 seed URLs to the frontier
+2025-05-22 19:02:04,278 [run_crawler] INFO: Filtering to domain: sagarnildas.com
+2025-05-22 19:02:04,278 [run_crawler] INFO: Starting crawler with 2 workers...
+2025-05-22 19:02:04,306 [crawler] INFO: Starting crawler with 2 workers
+2025-05-22 19:02:05,771 [downloader] INFO: Downloaded 21927 bytes from https://sagarnildas.com in 0.46s
+2025-05-22 19:02:24,956 [crawler] INFO: Received signal 2, shutting down
+2025-05-22 19:02:24,957 [crawler] INFO: Stopping crawler
+2025-05-22 19:02:25,842 [crawler] INFO: Creating crawler checkpoint
+2025-05-22 19:02:25,886 [frontier] INFO: Frontier checkpoint saved to /media/sagarnildass/d16f4193-0a7d-4eb8-8b71-235a0fc1224e/home/sagarnildass/python_notebooks/system_design_practice/4_web_crawler/storage/frontier_checkpoint.pkl
+2025-05-22 19:02:25,886 [crawler] ERROR: Error creating crawler checkpoint: Object of type datetime is not JSON serializable
+2025-05-22 19:02:25,900 [crawler] INFO: Crawler running for 00:00:21 - Pages: 1 (0.05/s) - Failed: 0 - URLs Discovered: 0 - URLs Filtered: 0 - Domains: 1 - Frontier: 1
+2025-05-22 19:02:25,904 [crawler] INFO: Crawler stopped
+2025-05-22 19:02:25,904 [run_crawler] INFO: Crawler finished
+2025-05-22 19:03:09,497 [run_crawler] INFO: Importing crawler modules...
+2025-05-22 19:03:09,652 [root] INFO: Loaded local configuration
+2025-05-22 19:03:09,679 [root] INFO: Loaded local configuration
+2025-05-22 19:03:09,680 [root] INFO: Loaded local configuration
+2025-05-22 19:03:09,715 [run_crawler] INFO: Successfully imported crawler modules
+2025-05-22 19:03:09,716 [run_crawler] DEBUG: Verbose logging enabled
+2025-05-22 19:03:09,716 [run_crawler] INFO: Starting the web crawler...
+2025-05-22 19:03:09,716 [run_crawler] INFO: Resetting MongoDB and flushing Redis data...
+2025-05-22 19:03:09,716 [run_crawler] INFO: Starting MongoDB cleanup...
+2025-05-22 19:03:09,716 [mongo_cleanup] INFO: Connecting to MongoDB...
+2025-05-22 19:03:09,719 [mongo_cleanup] INFO: No collections found in the crawler database
+2025-05-22 19:03:09,719 [mongo_cleanup] INFO: Dropping entire crawler database
+2025-05-22 19:03:09,719 [mongo_cleanup] INFO: Found crawler-related collections in database: webcrawler
+2025-05-22 19:03:09,719 [mongo_cleanup] INFO: Dropping collection webcrawler.urls
+2025-05-22 19:03:09,720 [mongo_cleanup] INFO: Dropping collection webcrawler.pages
+2025-05-22 19:03:09,720 [mongo_cleanup] INFO: Dropping collection webcrawler.stats
+2025-05-22 19:03:09,720 [mongo_cleanup] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:03:09,720 [run_crawler] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:03:09,720 [run_crawler] INFO: Starting Redis flush...
+2025-05-22 19:03:09,720 [run_crawler] DEBUG: Connecting to Redis to flush data...
+2025-05-22 19:03:09,720 [run_crawler] DEBUG: Testing Redis connection...
+2025-05-22 19:03:09,721 [run_crawler] DEBUG: Redis ping result: True
+2025-05-22 19:03:09,721 [run_crawler] INFO: Flushing all Redis data...
+2025-05-22 19:03:09,722 [run_crawler] INFO: Redis flush result: True
+2025-05-22 19:03:09,722 [run_crawler] INFO: Creating crawler instance...
+2025-05-22 19:03:09,723 [frontier] INFO: URLFrontier using simple mode: True
+2025-05-22 19:03:09,723 [frontier] INFO: Initializing URL seen set
+2025-05-22 19:03:09,747 [crawler] INFO: MongoDB indexes created
+2025-05-22 19:03:09,747 [crawler] INFO: Metrics server started on port 9100
+2025-05-22 19:03:09,747 [run_crawler] INFO: Crawler instance created successfully
+2025-05-22 19:03:09,747 [run_crawler] INFO: Setting maximum depth to 3
+2025-05-22 19:03:09,747 [run_crawler] INFO: Respect robots.txt: False
+2025-05-22 19:03:09,747 [run_crawler] INFO: Adding 1 seed URLs
+2025-05-22 19:03:09,747 [run_crawler] DEBUG: Added seed URL: https://sagarnildas.com
+2025-05-22 19:03:09,747 [run_crawler] INFO: Adding seed URLs to frontier...
+2025-05-22 19:03:09,774 [crawler] INFO: Added seed URL: https://sagarnildas.com
+2025-05-22 19:03:09,774 [run_crawler] INFO: Successfully added 1 seed URLs to the frontier
+2025-05-22 19:03:09,774 [run_crawler] INFO: Filtering to domain: sagarnildas.com
+2025-05-22 19:03:09,774 [run_crawler] INFO: Starting crawler with 2 workers...
+2025-05-22 19:03:09,794 [crawler] INFO: Starting crawler with 2 workers
+2025-05-22 19:03:10,783 [downloader] INFO: Downloaded 21927 bytes from https://sagarnildas.com in 0.45s
+2025-05-22 19:03:37,673 [crawler] INFO: Received signal 2, shutting down
+2025-05-22 19:03:37,673 [crawler] INFO: Stopping crawler
+2025-05-22 19:03:37,877 [crawler] INFO: Creating crawler checkpoint
+2025-05-22 19:03:37,910 [frontier] INFO: Frontier checkpoint saved to /media/sagarnildass/d16f4193-0a7d-4eb8-8b71-235a0fc1224e/home/sagarnildass/python_notebooks/system_design_practice/4_web_crawler/storage/frontier_checkpoint.pkl
+2025-05-22 19:03:37,910 [crawler] ERROR: Error creating crawler checkpoint: Object of type datetime is not JSON serializable
+2025-05-22 19:03:37,924 [crawler] INFO: Crawler running for 00:00:28 - Pages: 1 (0.04/s) - Failed: 0 - URLs Discovered: 0 - URLs Filtered: 0 - Domains: 1 - Frontier: 1
+2025-05-22 19:03:37,928 [crawler] INFO: Crawler stopped
+2025-05-22 19:03:37,929 [run_crawler] INFO: Crawler finished
+2025-05-22 19:04:09,347 [run_crawler] INFO: Importing crawler modules...
+2025-05-22 19:04:09,501 [root] INFO: Loaded local configuration
+2025-05-22 19:04:09,527 [root] INFO: Loaded local configuration
+2025-05-22 19:04:09,528 [root] INFO: Loaded local configuration
+2025-05-22 19:04:09,563 [run_crawler] INFO: Successfully imported crawler modules
+2025-05-22 19:04:09,564 [run_crawler] DEBUG: Verbose logging enabled
+2025-05-22 19:04:09,564 [run_crawler] INFO: Starting the web crawler...
+2025-05-22 19:04:09,564 [run_crawler] INFO: Resetting MongoDB and flushing Redis data...
+2025-05-22 19:04:09,564 [run_crawler] INFO: Starting MongoDB cleanup...
+2025-05-22 19:04:09,564 [mongo_cleanup] INFO: Connecting to MongoDB...
+2025-05-22 19:04:09,567 [mongo_cleanup] INFO: No collections found in the crawler database
+2025-05-22 19:04:09,567 [mongo_cleanup] INFO: Dropping entire crawler database
+2025-05-22 19:04:09,568 [mongo_cleanup] INFO: Found crawler-related collections in database: webcrawler
+2025-05-22 19:04:09,569 [mongo_cleanup] INFO: Dropping collection webcrawler.urls
+2025-05-22 19:04:09,570 [mongo_cleanup] INFO: Dropping collection webcrawler.pages
+2025-05-22 19:04:09,570 [mongo_cleanup] INFO: Dropping collection webcrawler.stats
+2025-05-22 19:04:09,571 [mongo_cleanup] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:04:09,571 [run_crawler] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:04:09,571 [run_crawler] INFO: Starting Redis flush...
+2025-05-22 19:04:09,571 [run_crawler] DEBUG: Connecting to Redis to flush data...
+2025-05-22 19:04:09,571 [run_crawler] DEBUG: Testing Redis connection...
+2025-05-22 19:04:09,571 [run_crawler] DEBUG: Redis ping result: True
+2025-05-22 19:04:09,571 [run_crawler] INFO: Flushing all Redis data...
+2025-05-22 19:04:09,573 [run_crawler] INFO: Redis flush result: True
+2025-05-22 19:04:09,573 [run_crawler] INFO: Creating crawler instance...
+2025-05-22 19:04:09,573 [frontier] INFO: URLFrontier using simple mode: True
+2025-05-22 19:04:09,573 [frontier] INFO: Initializing URL seen set
+2025-05-22 19:04:09,604 [crawler] INFO: MongoDB indexes created
+2025-05-22 19:04:09,605 [crawler] INFO: Metrics server started on port 9100
+2025-05-22 19:04:09,605 [run_crawler] INFO: Crawler instance created successfully
+2025-05-22 19:04:09,605 [run_crawler] INFO: Setting maximum depth to 3
+2025-05-22 19:04:09,605 [run_crawler] INFO: Respect robots.txt: False
+2025-05-22 19:04:09,605 [run_crawler] INFO: Adding 1 seed URLs
+2025-05-22 19:04:09,605 [run_crawler] DEBUG: Added seed URL: https://sagarnildas.com
+2025-05-22 19:04:09,605 [run_crawler] INFO: Adding seed URLs to frontier...
+2025-05-22 19:04:09,633 [crawler] INFO: Added seed URL: https://sagarnildas.com
+2025-05-22 19:04:09,633 [run_crawler] INFO: Successfully added 1 seed URLs to the frontier
+2025-05-22 19:04:09,633 [run_crawler] INFO: Filtering to domain: sagarnildas.com
+2025-05-22 19:04:09,633 [run_crawler] INFO: Starting crawler with 2 workers...
+2025-05-22 19:04:09,647 [crawler] INFO: Starting crawler with 2 workers
+2025-05-22 19:04:10,753 [downloader] INFO: Downloaded 21927 bytes from https://sagarnildas.com in 0.40s
+2025-05-22 19:04:21,324 [crawler] INFO: Received signal 2, shutting down
+2025-05-22 19:04:21,324 [crawler] INFO: Stopping crawler
+2025-05-22 19:04:21,812 [crawler] INFO: Creating crawler checkpoint
+2025-05-22 19:04:21,851 [frontier] INFO: Frontier checkpoint saved to /media/sagarnildass/d16f4193-0a7d-4eb8-8b71-235a0fc1224e/home/sagarnildass/python_notebooks/system_design_practice/4_web_crawler/storage/frontier_checkpoint.pkl
+2025-05-22 19:04:21,852 [crawler] ERROR: Error creating crawler checkpoint: Object of type datetime is not JSON serializable
+2025-05-22 19:04:21,865 [crawler] INFO: Crawler running for 00:00:12 - Pages: 1 (0.08/s) - Failed: 0 - URLs Discovered: 0 - URLs Filtered: 0 - Domains: 1 - Frontier: 1
+2025-05-22 19:04:21,870 [crawler] INFO: Crawler stopped
+2025-05-22 19:04:21,870 [run_crawler] INFO: Crawler finished
+2025-05-22 19:05:00,584 [run_crawler] INFO: Importing crawler modules...
+2025-05-22 19:05:00,737 [root] INFO: Loaded local configuration
+2025-05-22 19:05:00,764 [root] INFO: Loaded local configuration
+2025-05-22 19:05:00,764 [root] INFO: Loaded local configuration
+2025-05-22 19:05:00,799 [run_crawler] INFO: Successfully imported crawler modules
+2025-05-22 19:05:00,800 [run_crawler] DEBUG: Verbose logging enabled
+2025-05-22 19:05:00,800 [run_crawler] INFO: Starting the web crawler...
+2025-05-22 19:05:00,800 [run_crawler] INFO: Resetting MongoDB and flushing Redis data...
+2025-05-22 19:05:00,800 [run_crawler] INFO: Starting MongoDB cleanup...
+2025-05-22 19:05:00,800 [mongo_cleanup] INFO: Connecting to MongoDB...
+2025-05-22 19:05:00,803 [mongo_cleanup] INFO: No collections found in the crawler database
+2025-05-22 19:05:00,803 [mongo_cleanup] INFO: Dropping entire crawler database
+2025-05-22 19:05:00,803 [mongo_cleanup] INFO: Found crawler-related collections in database: webcrawler
+2025-05-22 19:05:00,803 [mongo_cleanup] INFO: Dropping collection webcrawler.urls
+2025-05-22 19:05:00,804 [mongo_cleanup] INFO: Dropping collection webcrawler.pages
+2025-05-22 19:05:00,804 [mongo_cleanup] INFO: Dropping collection webcrawler.stats
+2025-05-22 19:05:00,804 [mongo_cleanup] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:05:00,804 [run_crawler] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:05:00,804 [run_crawler] INFO: Starting Redis flush...
+2025-05-22 19:05:00,804 [run_crawler] DEBUG: Connecting to Redis to flush data...
+2025-05-22 19:05:00,804 [run_crawler] DEBUG: Testing Redis connection...
+2025-05-22 19:05:00,805 [run_crawler] DEBUG: Redis ping result: True
+2025-05-22 19:05:00,805 [run_crawler] INFO: Flushing all Redis data...
+2025-05-22 19:05:00,806 [run_crawler] INFO: Redis flush result: True
+2025-05-22 19:05:00,806 [run_crawler] INFO: Creating crawler instance...
+2025-05-22 19:05:00,806 [frontier] INFO: URLFrontier using simple mode: True
+2025-05-22 19:05:00,807 [frontier] INFO: Initializing URL seen set
+2025-05-22 19:05:00,832 [crawler] INFO: MongoDB indexes created
+2025-05-22 19:05:00,833 [crawler] INFO: Metrics server started on port 9100
+2025-05-22 19:05:00,833 [run_crawler] INFO: Crawler instance created successfully
+2025-05-22 19:05:00,833 [run_crawler] INFO: Setting maximum depth to 3
+2025-05-22 19:05:00,833 [run_crawler] INFO: Respect robots.txt: False
+2025-05-22 19:05:00,833 [run_crawler] INFO: Adding 1 seed URLs
+2025-05-22 19:05:00,833 [run_crawler] DEBUG: Added seed URL: https://sagarnildas.com
+2025-05-22 19:05:00,833 [run_crawler] INFO: Adding seed URLs to frontier...
+2025-05-22 19:05:00,858 [crawler] INFO: Added seed URL: https://sagarnildas.com
+2025-05-22 19:05:00,858 [run_crawler] INFO: Successfully added 1 seed URLs to the frontier
+2025-05-22 19:05:00,858 [run_crawler] INFO: Filtering to domain: sagarnildas.com
+2025-05-22 19:05:00,858 [run_crawler] INFO: Starting crawler with 2 workers...
+2025-05-22 19:05:00,882 [crawler] INFO: Starting crawler with 2 workers
+2025-05-22 19:05:01,958 [downloader] INFO: Downloaded 21927 bytes from https://sagarnildas.com in 0.43s
+2025-05-22 19:05:10,940 [crawler] INFO: Received signal 2, shutting down
+2025-05-22 19:05:10,941 [crawler] INFO: Stopping crawler
+2025-05-22 19:05:11,902 [crawler] INFO: Creating crawler checkpoint
+2025-05-22 19:05:11,937 [frontier] INFO: Frontier checkpoint saved to /media/sagarnildass/d16f4193-0a7d-4eb8-8b71-235a0fc1224e/home/sagarnildass/python_notebooks/system_design_practice/4_web_crawler/storage/frontier_checkpoint.pkl
+2025-05-22 19:05:11,937 [crawler] ERROR: Error creating crawler checkpoint: Object of type datetime is not JSON serializable
+2025-05-22 19:05:11,951 [crawler] INFO: Crawler running for 00:00:11 - Pages: 1 (0.09/s) - Failed: 0 - URLs Discovered: 0 - URLs Filtered: 0 - Domains: 1 - Frontier: 1
+2025-05-22 19:05:11,956 [crawler] INFO: Crawler stopped
+2025-05-22 19:05:11,956 [run_crawler] INFO: Crawler finished
+2025-05-22 19:05:31,973 [run_crawler] INFO: Importing crawler modules...
+2025-05-22 19:05:32,127 [root] INFO: Loaded local configuration
+2025-05-22 19:05:32,153 [root] INFO: Loaded local configuration
+2025-05-22 19:05:32,153 [root] INFO: Loaded local configuration
+2025-05-22 19:05:32,190 [run_crawler] INFO: Successfully imported crawler modules
+2025-05-22 19:05:32,190 [run_crawler] DEBUG: Verbose logging enabled
+2025-05-22 19:05:32,190 [run_crawler] INFO: Starting the web crawler...
+2025-05-22 19:05:32,190 [run_crawler] INFO: Resetting MongoDB and flushing Redis data...
+2025-05-22 19:05:32,190 [run_crawler] INFO: Starting MongoDB cleanup...
+2025-05-22 19:05:32,190 [mongo_cleanup] INFO: Connecting to MongoDB...
+2025-05-22 19:05:32,194 [mongo_cleanup] INFO: No collections found in the crawler database
+2025-05-22 19:05:32,194 [mongo_cleanup] INFO: Dropping entire crawler database
+2025-05-22 19:05:32,195 [mongo_cleanup] INFO: Found crawler-related collections in database: webcrawler
+2025-05-22 19:05:32,195 [mongo_cleanup] INFO: Dropping collection webcrawler.urls
+2025-05-22 19:05:32,196 [mongo_cleanup] INFO: Dropping collection webcrawler.pages
+2025-05-22 19:05:32,197 [mongo_cleanup] INFO: Dropping collection webcrawler.stats
+2025-05-22 19:05:32,197 [mongo_cleanup] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:05:32,197 [run_crawler] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:05:32,197 [run_crawler] INFO: Starting Redis flush...
+2025-05-22 19:05:32,197 [run_crawler] DEBUG: Connecting to Redis to flush data...
+2025-05-22 19:05:32,197 [run_crawler] DEBUG: Testing Redis connection...
+2025-05-22 19:05:32,198 [run_crawler] DEBUG: Redis ping result: True
+2025-05-22 19:05:32,198 [run_crawler] INFO: Flushing all Redis data...
+2025-05-22 19:05:32,200 [run_crawler] INFO: Redis flush result: True
+2025-05-22 19:05:32,200 [run_crawler] INFO: Creating crawler instance...
+2025-05-22 19:05:32,200 [frontier] INFO: URLFrontier using simple mode: True
+2025-05-22 19:05:32,200 [frontier] INFO: Initializing URL seen set
+2025-05-22 19:05:32,228 [crawler] INFO: MongoDB indexes created
+2025-05-22 19:05:32,228 [crawler] INFO: Metrics server started on port 9100
+2025-05-22 19:05:32,228 [run_crawler] INFO: Crawler instance created successfully
+2025-05-22 19:05:32,228 [run_crawler] INFO: Setting maximum depth to 3
+2025-05-22 19:05:32,228 [run_crawler] INFO: Respect robots.txt: False
+2025-05-22 19:05:32,228 [run_crawler] INFO: Adding 1 seed URLs
+2025-05-22 19:05:32,228 [run_crawler] DEBUG: Added seed URL: https://sagarnildas.com
+2025-05-22 19:05:32,228 [run_crawler] INFO: Adding seed URLs to frontier...
+2025-05-22 19:05:32,253 [crawler] INFO: Added seed URL: https://sagarnildas.com
+2025-05-22 19:05:32,253 [run_crawler] INFO: Successfully added 1 seed URLs to the frontier
+2025-05-22 19:05:32,253 [run_crawler] INFO: Filtering to domain: sagarnildas.com
+2025-05-22 19:05:32,253 [run_crawler] INFO: Starting crawler with 2 workers...
+2025-05-22 19:05:32,280 [crawler] INFO: Starting crawler with 2 workers
+2025-05-22 19:05:33,397 [downloader] INFO: Downloaded 21927 bytes from https://sagarnildas.com in 0.45s
+2025-05-22 19:07:09,890 [run_crawler] INFO: Importing crawler modules...
+2025-05-22 19:07:10,048 [root] INFO: Loaded local configuration
+2025-05-22 19:07:10,075 [root] INFO: Loaded local configuration
+2025-05-22 19:07:10,075 [root] INFO: Loaded local configuration
+2025-05-22 19:07:10,110 [run_crawler] INFO: Successfully imported crawler modules
+2025-05-22 19:07:10,111 [run_crawler] DEBUG: Verbose logging enabled
+2025-05-22 19:07:10,111 [run_crawler] INFO: Starting the web crawler...
+2025-05-22 19:07:10,111 [run_crawler] INFO: Resetting MongoDB and flushing Redis data...
+2025-05-22 19:07:10,111 [run_crawler] INFO: Starting MongoDB cleanup...
+2025-05-22 19:07:10,111 [mongo_cleanup] INFO: Connecting to MongoDB...
+2025-05-22 19:07:10,114 [mongo_cleanup] INFO: No collections found in the crawler database
+2025-05-22 19:07:10,114 [mongo_cleanup] INFO: Dropping entire crawler database
+2025-05-22 19:07:10,115 [mongo_cleanup] INFO: Found crawler-related collections in database: webcrawler
+2025-05-22 19:07:10,115 [mongo_cleanup] INFO: Dropping collection webcrawler.urls
+2025-05-22 19:07:10,115 [mongo_cleanup] INFO: Dropping collection webcrawler.pages
+2025-05-22 19:07:10,116 [mongo_cleanup] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:07:10,116 [run_crawler] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:07:10,116 [run_crawler] INFO: Starting Redis flush...
+2025-05-22 19:07:10,116 [run_crawler] DEBUG: Connecting to Redis to flush data...
+2025-05-22 19:07:10,116 [run_crawler] DEBUG: Testing Redis connection...
+2025-05-22 19:07:10,116 [run_crawler] DEBUG: Redis ping result: True
+2025-05-22 19:07:10,116 [run_crawler] INFO: Flushing all Redis data...
+2025-05-22 19:07:10,118 [run_crawler] INFO: Redis flush result: True
+2025-05-22 19:07:10,118 [run_crawler] INFO: Creating crawler instance...
+2025-05-22 19:07:10,118 [frontier] INFO: URLFrontier using simple mode: True
+2025-05-22 19:07:10,118 [frontier] INFO: Initializing URL seen set
+2025-05-22 19:07:10,149 [crawler] INFO: MongoDB indexes created
+2025-05-22 19:07:10,150 [crawler] INFO: Metrics server started on port 9100
+2025-05-22 19:07:10,150 [run_crawler] INFO: Crawler instance created successfully
+2025-05-22 19:07:10,150 [run_crawler] INFO: Setting maximum depth to 3
+2025-05-22 19:07:10,150 [run_crawler] INFO: Respect robots.txt: False
+2025-05-22 19:07:10,150 [run_crawler] INFO: Adding 1 seed URLs
+2025-05-22 19:07:10,150 [run_crawler] DEBUG: Added seed URL: https://sagarnildas.com
+2025-05-22 19:07:10,150 [run_crawler] INFO: Adding seed URLs to frontier...
+2025-05-22 19:07:10,175 [crawler] INFO: Added seed URL: https://sagarnildas.com
+2025-05-22 19:07:10,175 [run_crawler] INFO: Successfully added 1 seed URLs to the frontier
+2025-05-22 19:07:10,175 [run_crawler] INFO: Filtering to domain: sagarnildas.com
+2025-05-22 19:07:10,175 [run_crawler] INFO: Starting crawler with 2 workers...
+2025-05-22 19:07:10,212 [crawler] INFO: Starting crawler with 2 workers
+2025-05-22 19:07:11,472 [downloader] INFO: Downloaded 21927 bytes from https://sagarnildas.com in 0.47s
+2025-05-22 19:08:30,653 [run_crawler] INFO: Importing crawler modules...
+2025-05-22 19:08:30,811 [root] INFO: Loaded local configuration
+2025-05-22 19:08:30,838 [root] INFO: Loaded local configuration
+2025-05-22 19:08:30,839 [root] INFO: Loaded local configuration
+2025-05-22 19:08:30,874 [run_crawler] INFO: Successfully imported crawler modules
+2025-05-22 19:08:30,874 [run_crawler] DEBUG: Verbose logging enabled
+2025-05-22 19:08:30,874 [run_crawler] INFO: Starting the web crawler...
+2025-05-22 19:08:30,874 [run_crawler] INFO: Resetting MongoDB and flushing Redis data...
+2025-05-22 19:08:30,874 [run_crawler] INFO: Starting MongoDB cleanup...
+2025-05-22 19:08:30,874 [mongo_cleanup] INFO: Connecting to MongoDB...
+2025-05-22 19:08:30,877 [mongo_cleanup] INFO: No collections found in the crawler database
+2025-05-22 19:08:30,877 [mongo_cleanup] INFO: Dropping entire crawler database
+2025-05-22 19:08:30,877 [mongo_cleanup] INFO: Found crawler-related collections in database: webcrawler
+2025-05-22 19:08:30,877 [mongo_cleanup] INFO: Dropping collection webcrawler.urls
+2025-05-22 19:08:30,878 [mongo_cleanup] INFO: Dropping collection webcrawler.pages
+2025-05-22 19:08:30,878 [mongo_cleanup] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:08:30,878 [run_crawler] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:08:30,878 [run_crawler] INFO: Starting Redis flush...
+2025-05-22 19:08:30,878 [run_crawler] DEBUG: Connecting to Redis to flush data...
+2025-05-22 19:08:30,879 [run_crawler] DEBUG: Testing Redis connection...
+2025-05-22 19:08:30,879 [run_crawler] DEBUG: Redis ping result: True
+2025-05-22 19:08:30,879 [run_crawler] INFO: Flushing all Redis data...
+2025-05-22 19:08:30,880 [run_crawler] INFO: Redis flush result: True
+2025-05-22 19:08:30,880 [run_crawler] INFO: Creating crawler instance...
+2025-05-22 19:08:30,881 [frontier] INFO: URLFrontier using simple mode: True
+2025-05-22 19:08:30,881 [frontier] INFO: Initializing URL seen set
+2025-05-22 19:08:30,904 [crawler] INFO: MongoDB indexes created
+2025-05-22 19:08:30,904 [crawler] INFO: Metrics server started on port 9100
+2025-05-22 19:08:30,904 [run_crawler] INFO: Crawler instance created successfully
+2025-05-22 19:08:30,904 [run_crawler] INFO: Setting maximum depth to 3
+2025-05-22 19:08:30,904 [run_crawler] INFO: Respect robots.txt: False
+2025-05-22 19:08:30,904 [run_crawler] INFO: Adding 1 seed URLs
+2025-05-22 19:08:30,904 [run_crawler] DEBUG: Added seed URL: https://sagarnildas.com
+2025-05-22 19:08:30,904 [run_crawler] INFO: Adding seed URLs to frontier...
+2025-05-22 19:08:30,928 [crawler] INFO: Added seed URL: https://sagarnildas.com
+2025-05-22 19:08:30,928 [run_crawler] INFO: Successfully added 1 seed URLs to the frontier
+2025-05-22 19:08:30,928 [run_crawler] INFO: Filtering to domain: sagarnildas.com
+2025-05-22 19:08:30,928 [run_crawler] INFO: Starting crawler with 2 workers...
+2025-05-22 19:08:30,946 [crawler] INFO: Starting crawler with 2 workers
+2025-05-22 19:08:32,548 [downloader] INFO: Downloaded 228055 bytes from https://sagarnildas.com in 0.90s
+2025-05-22 19:08:33,734 [downloader] INFO: Downloaded 127860 bytes from https://sagarnildas.com/blogs/ten-hidden-features-of-kubernetes in 0.78s
+2025-05-22 19:08:36,184 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/static/chunks/polyfills-c67a75d1b6f99dc8.js with any encoding
+2025-05-22 19:08:40,096 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/image?q=75&url=%2Fimages%2Fblogs%2Falphazero_banner.png&w=3840 with any encoding
+2025-05-22 19:08:41,817 [downloader] INFO: Downloaded 181263 bytes from https://sagarnildas.com/contributions in 1.71s
+2025-05-22 19:08:43,257 [downloader] INFO: Downloaded 468 bytes from https://mindmatters.sagarnildas.com/ in 0.81s
+2025-05-22 19:08:46,334 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/image?q=75&url=%2Fimages%2Fprojects%2Ffilmpire.png&w=3840 with any encoding
+2025-05-22 19:08:47,829 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/image?q=75&url=%2Fimages%2Flogos%2Fhopscotch.ico&w=32 with any encoding
+2025-05-22 19:08:49,950 [downloader] INFO: Downloaded 228055 bytes from https://www.sagarnildas.com/ in 0.59s
+2025-05-22 19:08:49,951 [crawler] INFO: Duplicate content detected for URL https://www.sagarnildas.com/
+2025-05-22 19:08:52,409 [downloader] INFO: Downloaded 20902 bytes from https://sagarnildas.com/events in 0.46s
+2025-05-22 19:08:54,830 [downloader] INFO: Downloaded 240563 bytes from https://sagarnildas.com/blogs/alpha-zero-tic-tac-toe-part-3-creating-react-ui in 0.85s
+2025-05-22 19:08:56,847 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/image?q=75&url=%2Fimages%2Flogos%2Fcyberdeck_logo.jpeg&w=32 with any encoding
+2025-05-22 19:08:59,958 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/image?q=75&url=%2Fimages%2Fprojects%2Fvastra_ai.jpg&w=3840 with any encoding
+2025-05-22 19:09:03,145 [downloader] INFO: Downloaded 43035 bytes from https://welth.sagarnildas.com/ in 2.08s
+2025-05-22 19:09:03,604 [downloader] INFO: Downloaded 49578 bytes from https://sagarnildas.com/projects in 0.63s
+2025-05-22 19:09:04,265 [crawler] INFO: Received signal 2, shutting down
+2025-05-22 19:09:04,266 [crawler] INFO: Stopping crawler
+2025-05-22 19:09:05,176 [crawler] INFO: Creating crawler checkpoint
+2025-05-22 19:09:05,232 [frontier] INFO: Frontier checkpoint saved to /media/sagarnildass/d16f4193-0a7d-4eb8-8b71-235a0fc1224e/home/sagarnildass/python_notebooks/system_design_practice/4_web_crawler/storage/frontier_checkpoint.pkl
+2025-05-22 19:09:05,232 [crawler] ERROR: Error creating crawler checkpoint: Object of type datetime is not JSON serializable
+2025-05-22 19:09:05,266 [crawler] INFO: Crawler running for 00:00:34 - Pages: 9 (0.26/s) - Failed: 6 - URLs Discovered: 112 - URLs Filtered: 111 - Domains: 1 - Frontier: 162
+2025-05-22 19:09:05,270 [crawler] INFO: Crawler stopped
+2025-05-22 19:09:05,271 [run_crawler] INFO: Crawler finished
+2025-05-22 19:10:18,198 [run_crawler] INFO: Importing crawler modules...
+2025-05-22 19:10:18,354 [root] INFO: Loaded local configuration
+2025-05-22 19:10:18,381 [root] INFO: Loaded local configuration
+2025-05-22 19:10:18,382 [root] INFO: Loaded local configuration
+2025-05-22 19:10:18,417 [run_crawler] INFO: Successfully imported crawler modules
+2025-05-22 19:10:18,418 [run_crawler] DEBUG: Verbose logging enabled
+2025-05-22 19:10:18,418 [run_crawler] INFO: Starting the web crawler...
+2025-05-22 19:10:18,418 [run_crawler] INFO: Resetting MongoDB and flushing Redis data...
+2025-05-22 19:10:18,418 [run_crawler] INFO: Starting MongoDB cleanup...
+2025-05-22 19:10:18,418 [mongo_cleanup] INFO: Connecting to MongoDB...
+2025-05-22 19:10:18,421 [mongo_cleanup] INFO: No collections found in the crawler database
+2025-05-22 19:10:18,421 [mongo_cleanup] INFO: Dropping entire crawler database
+2025-05-22 19:10:18,422 [mongo_cleanup] INFO: Found crawler-related collections in database: webcrawler
+2025-05-22 19:10:18,422 [mongo_cleanup] INFO: Dropping collection webcrawler.urls
+2025-05-22 19:10:18,423 [mongo_cleanup] INFO: Dropping collection webcrawler.pages
+2025-05-22 19:10:18,423 [mongo_cleanup] INFO: Dropping collection webcrawler.stats
+2025-05-22 19:10:18,424 [mongo_cleanup] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:10:18,424 [run_crawler] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:10:18,424 [run_crawler] INFO: Starting Redis flush...
+2025-05-22 19:10:18,424 [run_crawler] DEBUG: Connecting to Redis to flush data...
+2025-05-22 19:10:18,424 [run_crawler] DEBUG: Testing Redis connection...
+2025-05-22 19:10:18,424 [run_crawler] DEBUG: Redis ping result: True
+2025-05-22 19:10:18,424 [run_crawler] INFO: Flushing all Redis data...
+2025-05-22 19:10:18,426 [run_crawler] INFO: Redis flush result: True
+2025-05-22 19:10:18,426 [run_crawler] INFO: Creating crawler instance...
+2025-05-22 19:10:18,426 [frontier] INFO: URLFrontier using simple mode: True
+2025-05-22 19:10:18,427 [frontier] INFO: Initializing URL seen set
+2025-05-22 19:10:18,458 [crawler] INFO: MongoDB indexes created
+2025-05-22 19:10:18,459 [crawler] INFO: Metrics server started on port 9100
+2025-05-22 19:10:18,459 [run_crawler] INFO: Crawler instance created successfully
+2025-05-22 19:10:18,459 [run_crawler] INFO: Setting maximum depth to 3
+2025-05-22 19:10:18,459 [run_crawler] INFO: Respect robots.txt: False
+2025-05-22 19:10:18,459 [run_crawler] INFO: Adding 1 seed URLs
+2025-05-22 19:10:18,459 [run_crawler] DEBUG: Added seed URL: https://sagarnildas.com
+2025-05-22 19:10:18,459 [run_crawler] INFO: Adding seed URLs to frontier...
+2025-05-22 19:10:18,493 [crawler] INFO: Added seed URL: https://sagarnildas.com
+2025-05-22 19:10:18,493 [run_crawler] INFO: Successfully added 1 seed URLs to the frontier
+2025-05-22 19:10:18,493 [run_crawler] INFO: Filtering to domain: sagarnildas.com
+2025-05-22 19:10:18,493 [run_crawler] INFO: Starting crawler with 2 workers...
+2025-05-22 19:10:18,517 [crawler] INFO: Starting crawler with 2 workers
+2025-05-22 19:10:20,050 [downloader] INFO: Downloaded 228055 bytes from https://sagarnildas.com in 0.95s
+2025-05-22 19:10:21,041 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/image?q=75&url=%2Fimages%2Ftestimonials%2Fabhishek_verma.jpeg&w=1080 with any encoding
+2025-05-22 19:10:25,225 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/static/chunks/95b64a6e-cd5a75aaa530c320.js with any encoding
+2025-05-22 19:10:25,774 [downloader] INFO: Downloaded 13851 bytes from https://prepwise.sagarnildas.com/ in 2.61s
+2025-05-22 19:10:27,709 [downloader] INFO: Downloaded 127860 bytes from https://sagarnildas.com/blogs/ten-hidden-features-of-kubernetes in 0.45s
+2025-05-22 19:10:30,800 [downloader] INFO: Downloaded 181263 bytes from https://sagarnildas.com/contributions in 1.02s
+2025-05-22 19:10:32,440 [downloader] INFO: Downloaded 228055 bytes from https://www.sagarnildas.com/ in 0.62s
+2025-05-22 19:10:32,441 [crawler] INFO: Duplicate content detected for URL https://www.sagarnildas.com/
+2025-05-22 19:10:34,054 [downloader] INFO: Downloaded 20902 bytes from https://sagarnildas.com/events in 0.22s
+2025-05-22 19:10:36,685 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/image?q=75&url=%2Fimages%2Ftestimonials%2Frahuldeb_das.jpeg&w=1080 with any encoding
+2025-05-22 19:10:39,333 [downloader] INFO: Downloaded 26798 bytes from https://sagarnildas.com/blogs in 0.85s
+2025-05-22 19:10:41,156 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/image?q=75&url=%2Fimages%2Ftestimonials%2Fpradeep_kumar.jpeg&w=1080 with any encoding
+2025-05-22 19:10:43,344 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/static/chunks/polyfills-c67a75d1b6f99dc8.js with any encoding
+2025-05-22 19:10:45,729 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/static/chunks/webpack-cd7d4c40ff67bde6.js with any encoding
+2025-05-22 19:10:47,494 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/static/icGYOVcr8twl2JXzn008W/_buildManifest.js with any encoding
+2025-05-22 19:10:49,976 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/image?q=75&url=%2Fimages%2Flogos%2Fnysdoh_logo.jpg&w=32 with any encoding
+2025-05-22 19:10:52,302 [downloader] INFO: Downloaded 240563 bytes from https://sagarnildas.com/blogs/alpha-zero-tic-tac-toe-part-3-creating-react-ui in 0.48s
+2025-05-22 19:10:54,474 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/image?q=75&url=%2Fimages%2Favatar.jpeg&w=64 with any encoding
+2025-05-22 19:10:56,702 [crawler] INFO: Received signal 2, shutting down
+2025-05-22 19:10:56,702 [crawler] INFO: Stopping crawler
+2025-05-22 19:10:56,906 [downloader] INFO: Downloaded 468 bytes from https://mindmatters.sagarnildas.com/ in 0.48s
+2025-05-22 19:10:57,102 [crawler] INFO: Received signal 2, shutting down
+2025-05-22 19:10:57,102 [crawler] WARNING: Crawler is not running
+2025-05-22 19:10:57,510 [crawler] INFO: Creating crawler checkpoint
+2025-05-22 19:10:57,541 [frontier] INFO: Frontier checkpoint saved to /media/sagarnildass/d16f4193-0a7d-4eb8-8b71-235a0fc1224e/home/sagarnildass/python_notebooks/system_design_practice/4_web_crawler/storage/frontier_checkpoint.pkl
+2025-05-22 19:10:57,541 [crawler] ERROR: Error creating crawler checkpoint: Object of type datetime is not JSON serializable
+2025-05-22 19:10:57,554 [crawler] INFO: Crawler running for 00:00:39 - Pages: 9 (0.23/s) - Failed: 9 - URLs Discovered: 114 - URLs Filtered: 104 - Domains: 1 - Frontier: 178
+2025-05-22 19:10:57,559 [crawler] INFO: Crawler stopped
+2025-05-22 19:10:57,559 [run_crawler] INFO: Crawler finished
+2025-05-22 19:11:40,208 [run_crawler] INFO: Importing crawler modules...
+2025-05-22 19:11:40,364 [root] INFO: Loaded local configuration
+2025-05-22 19:11:40,390 [root] INFO: Loaded local configuration
+2025-05-22 19:11:40,391 [root] INFO: Loaded local configuration
+2025-05-22 19:11:40,427 [run_crawler] INFO: Successfully imported crawler modules
+2025-05-22 19:11:40,427 [run_crawler] DEBUG: Verbose logging enabled
+2025-05-22 19:11:40,427 [run_crawler] INFO: Starting the web crawler...
+2025-05-22 19:11:40,427 [run_crawler] INFO: Resetting MongoDB and flushing Redis data...
+2025-05-22 19:11:40,427 [run_crawler] INFO: Starting MongoDB cleanup...
+2025-05-22 19:11:40,428 [mongo_cleanup] INFO: Connecting to MongoDB...
+2025-05-22 19:11:40,430 [mongo_cleanup] INFO: No collections found in the crawler database
+2025-05-22 19:11:40,430 [mongo_cleanup] INFO: Dropping entire crawler database
+2025-05-22 19:11:40,431 [mongo_cleanup] INFO: Found crawler-related collections in database: webcrawler
+2025-05-22 19:11:40,432 [mongo_cleanup] INFO: Dropping collection webcrawler.urls
+2025-05-22 19:11:40,433 [mongo_cleanup] INFO: Dropping collection webcrawler.pages
+2025-05-22 19:11:40,434 [mongo_cleanup] INFO: Dropping collection webcrawler.stats
+2025-05-22 19:11:40,434 [mongo_cleanup] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:11:40,434 [run_crawler] INFO: MongoDB cleanup completed successfully
+2025-05-22 19:11:40,434 [run_crawler] INFO: Starting Redis flush...
+2025-05-22 19:11:40,434 [run_crawler] DEBUG: Connecting to Redis to flush data...
+2025-05-22 19:11:40,434 [run_crawler] DEBUG: Testing Redis connection...
+2025-05-22 19:11:40,435 [run_crawler] DEBUG: Redis ping result: True
+2025-05-22 19:11:40,435 [run_crawler] INFO: Flushing all Redis data...
+2025-05-22 19:11:40,437 [run_crawler] INFO: Redis flush result: True
+2025-05-22 19:11:40,437 [run_crawler] INFO: Creating crawler instance...
+2025-05-22 19:11:40,437 [frontier] INFO: URLFrontier using simple mode: True
+2025-05-22 19:11:40,437 [frontier] INFO: Initializing URL seen set
+2025-05-22 19:11:40,484 [crawler] INFO: MongoDB indexes created
+2025-05-22 19:11:40,486 [crawler] INFO: Metrics server started on port 9100
+2025-05-22 19:11:40,487 [run_crawler] INFO: Crawler instance created successfully
+2025-05-22 19:11:40,487 [run_crawler] INFO: Setting maximum depth to 3
+2025-05-22 19:11:40,487 [run_crawler] INFO: Respect robots.txt: False
+2025-05-22 19:11:40,487 [run_crawler] INFO: Adding 1 seed URLs
+2025-05-22 19:11:40,487 [run_crawler] DEBUG: Added seed URL: https://sagarnildas.com
+2025-05-22 19:11:40,487 [run_crawler] INFO: Adding seed URLs to frontier...
+2025-05-22 19:11:40,525 [crawler] INFO: Added seed URL: https://sagarnildas.com
+2025-05-22 19:11:40,526 [run_crawler] INFO: Successfully added 1 seed URLs to the frontier
+2025-05-22 19:11:40,526 [run_crawler] INFO: Filtering to domain: sagarnildas.com
+2025-05-22 19:11:40,526 [run_crawler] INFO: Starting crawler with 2 workers...
+2025-05-22 19:11:40,540 [crawler] INFO: Starting crawler with 2 workers
+2025-05-22 19:11:42,033 [downloader] INFO: Downloaded 228055 bytes from https://sagarnildas.com in 0.95s
+2025-05-22 19:11:43,249 [downloader] INFO: Downloaded 228055 bytes from https://www.sagarnildas.com/ in 0.61s
+2025-05-22 19:11:43,250 [crawler] INFO: Duplicate content detected for URL https://www.sagarnildas.com/
+2025-05-22 19:11:45,323 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/image?q=75&url=%2Fimages%2Favatar.jpeg&w=64 with any encoding
+2025-05-22 19:11:47,677 [downloader] INFO: Downloaded 240563 bytes from https://sagarnildas.com/blogs/alpha-zero-tic-tac-toe-part-3-creating-react-ui in 0.40s
+2025-05-22 19:11:49,516 [downloader] INFO: Downloaded 26798 bytes from https://sagarnildas.com/blogs in 0.16s
+2025-05-22 19:11:52,580 [downloader] INFO: Downloaded 181263 bytes from https://sagarnildas.com/contributions in 1.04s
+2025-05-22 19:11:53,721 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/image?q=75&url=%2Fimages%2Flogos%2Fnysdoh_logo.jpg&w=32 with any encoding
+2025-05-22 19:11:55,864 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/static/icGYOVcr8twl2JXzn008W/_buildManifest.js with any encoding
+2025-05-22 19:11:58,699 [downloader] INFO: Downloaded 13851 bytes from https://prepwise.sagarnildas.com/ in 0.85s
+2025-05-22 19:12:00,072 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/static/chunks/main-2ae45a70cd68753a.js with any encoding
+2025-05-22 19:12:03,559 [crawler] INFO: Received signal 2, shutting down
+2025-05-22 19:12:03,559 [crawler] INFO: Stopping crawler
+2025-05-22 19:12:03,692 [downloader] WARNING: Failed to decode content for URL: https://sagarnildas.com/_next/image?q=75&url=%2Fimages%2Fprojects%2Fshareme.png&w=3840 with any encoding
+2025-05-22 19:12:03,789 [crawler] INFO: Creating crawler checkpoint
+2025-05-22 19:12:03,827 [frontier] INFO: Frontier checkpoint saved to /media/sagarnildass/d16f4193-0a7d-4eb8-8b71-235a0fc1224e/home/sagarnildass/python_notebooks/system_design_practice/4_web_crawler/storage/frontier_checkpoint.pkl
+2025-05-22 19:12:03,827 [crawler] ERROR: Error creating crawler checkpoint: Object of type datetime is not JSON serializable
+2025-05-22 19:12:03,841 [crawler] INFO: Crawler running for 00:00:23 - Pages: 6 (0.26/s) - Failed: 5 - URLs Discovered: 94 - URLs Filtered: 64 - Domains: 1 - Frontier: 132
+2025-05-22 19:12:03,846 [crawler] INFO: Crawler stopped
+2025-05-22 19:12:03,846 [run_crawler] INFO: Crawler finished
+2025-05-22 19:12:03,898 [crawler] INFO: Received signal 2, shutting down
+2025-05-22 19:12:03,898 [crawler] WARNING: Crawler is not running

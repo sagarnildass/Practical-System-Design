@@ -9,6 +9,7 @@ from urllib.parse import urlparse, urljoin, unquote
 from bs4 import BeautifulSoup
 import tldextract
 import hashlib
+import os
 
 from models import URL, Page, Priority, normalize_url
 import config
@@ -48,28 +49,17 @@ class HTMLParser:
         # Use page URL as base URL if not provided
         if not base_url:
             base_url = page.url
-        
-        # Parse HTML with BeautifulSoup
-        try:
-            soup = BeautifulSoup(page.content, 'lxml')
-        except Exception as e:
-            logger.warning(f"Error parsing HTML with lxml: {e}, falling back to html.parser")
-            try:
-                soup = BeautifulSoup(page.content, 'html.parser')
-            except Exception as e:
-                logger.error(f"Error parsing HTML: {e}")
-                return [], {}
+            
+        # Parse HTML content
+        soup = BeautifulSoup(page.content, 'html.parser')
         
         # Extract URLs
-        extracted_urls = self._extract_urls(soup, base_url)
+        urls = self._extract_urls(soup, base_url)
         
         # Extract metadata
         metadata = self._extract_metadata(soup)
         
-        # Store links in page object
-        page.links = extracted_urls
-        
-        return extracted_urls, metadata
+        return urls, metadata
     
     def _extract_urls(self, soup: BeautifulSoup, base_url: str) -> List[str]:
         """
@@ -83,6 +73,10 @@ class HTMLParser:
             List of normalized URLs
         """
         urls = set()
+        all_urls = set()  # Track all URLs before filtering
+        filtered_urls = set()  # Track filtered URLs
+        
+        logger.debug(f"Extracting URLs from page: {base_url}")
         
         # Extract URLs from <a> tags
         for link in soup.find_all('a', href=True):
@@ -91,11 +85,14 @@ class HTMLParser:
                 # Resolve relative URLs
                 try:
                     absolute_url = urljoin(base_url, href)
+                    all_urls.add(absolute_url)
                     # Normalize URL
                     normalized_url = normalize_url(absolute_url)
                     # Apply URL filters
                     if self._should_allow_url(normalized_url):
                         urls.add(normalized_url)
+                    else:
+                        filtered_urls.add(normalized_url)
                 except Exception as e:
                     logger.debug(f"Error processing URL {href}: {e}")
         
@@ -107,11 +104,24 @@ class HTMLParser:
                 if url and not url.startswith(('#', 'javascript:', 'data:', 'mailto:', 'tel:')):
                     try:
                         absolute_url = urljoin(base_url, url)
+                        all_urls.add(absolute_url)
                         normalized_url = normalize_url(absolute_url)
                         if self._should_allow_url(normalized_url):
                             urls.add(normalized_url)
+                        else:
+                            filtered_urls.add(normalized_url)
                     except Exception as e:
                         logger.debug(f"Error processing URL {url}: {e}")
+        
+        # Log statistics
+        logger.debug(f"Found {len(all_urls)} total URLs")
+        logger.debug(f"Filtered {len(filtered_urls)} URLs")
+        logger.debug(f"Accepted {len(urls)} URLs")
+        
+        # Log some example filtered URLs for debugging
+        if filtered_urls:
+            sample_filtered = list(filtered_urls)[:5]
+            logger.debug(f"Sample filtered URLs: {sample_filtered}")
         
         # Return list of unique URLs
         return list(urls)
@@ -131,6 +141,7 @@ class HTMLParser:
             
             # Check scheme
             if parsed.scheme not in config.ALLOWED_SCHEMES:
+                logger.debug(f"URL filtered - invalid scheme: {url}")
                 return False
             
             # Check domain restrictions
@@ -138,15 +149,18 @@ class HTMLParser:
             
             # Check allowed domains if set
             if config.ALLOWED_DOMAINS and domain not in config.ALLOWED_DOMAINS:
+                logger.debug(f"URL filtered - domain not allowed: {url} (domain: {domain}, allowed: {config.ALLOWED_DOMAINS})")
                 return False
             
             # Check excluded domains
             if domain in config.EXCLUDED_DOMAINS:
+                logger.debug(f"URL filtered - domain excluded: {url}")
                 return False
             
             # Check URL filters
             for pattern in self.url_filters:
                 if pattern.match(url):
+                    logger.debug(f"URL filtered - pattern match: {url}")
                     return False
             
             return True

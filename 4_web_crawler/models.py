@@ -10,6 +10,9 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional, Set, Tuple
 from pydantic import BaseModel, Field, HttpUrl, validator
 from enum import Enum
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class URLStatus(str, Enum):
@@ -102,40 +105,59 @@ class DomainStats(BaseModel):
 
 
 def normalize_url(url: str) -> str:
-    """Normalize URL for consistent comparison and storage"""
+    """
+    Normalize a URL by:
+    1. Converting to lowercase
+    2. Removing fragments
+    3. Removing default ports
+    4. Sorting query parameters
+    5. Removing trailing slashes
+    6. Adding scheme if missing
+    """
     try:
+        # Parse URL
         parsed = urlparse(url)
         
-        # Convert to lowercase
-        netloc = parsed.netloc.lower()
+        # Add scheme if missing
+        if not parsed.scheme:
+            url = 'http://' + url
+            parsed = urlparse(url)
+        
+        # Get domain and path
+        domain = parsed.netloc.lower()
         path = parsed.path
         
         # Remove default ports
-        if netloc.endswith(":80") and parsed.scheme == "http":
-            netloc = netloc[:-3]
-        elif netloc.endswith(":443") and parsed.scheme == "https":
-            netloc = netloc[:-4]
+        if ':' in domain:
+            domain_parts = domain.split(':')
+            if (parsed.scheme == 'http' and domain_parts[1] == '80') or \
+               (parsed.scheme == 'https' and domain_parts[1] == '443'):
+                domain = domain_parts[0]
         
-        # Add trailing slash to path if empty
+        # Sort query parameters
+        query = parsed.query
+        if query:
+            query_params = sorted(query.split('&'))
+            query = '&'.join(query_params)
+        
+        # Remove trailing slashes from path
+        while path.endswith('/') and len(path) > 1:
+            path = path[:-1]
+            
+        # Add leading slash if missing
         if not path:
-            path = "/"
+            path = '/'
         
-        # Remove fragment
-        fragment = ""
-        
-        # Recreate URL without fragments and with normalized components
-        normalized = urlunparse((
-            parsed.scheme,
-            netloc,
-            path,
-            parsed.params,
-            parsed.query,
-            fragment
-        ))
-        
+        # Reconstruct URL
+        normalized = f"{parsed.scheme}://{domain}{path}"
+        if query:
+            normalized += f"?{query}"
+            
+        logger.debug(f"Normalized URL: {url} -> {normalized}")
         return normalized
-    except Exception:
-        # If normalization fails, return the original URL
+        
+    except Exception as e:
+        logger.error(f"Error normalizing URL {url}: {e}")
         return url
 
 
