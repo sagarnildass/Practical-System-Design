@@ -8,7 +8,7 @@ import tldextract
 from urllib.parse import urlparse, urljoin, urlunparse
 from datetime import datetime
 from typing import Dict, List, Any, Optional, Set, Tuple
-from pydantic import BaseModel, Field, HttpUrl, validator
+from pydantic import BaseModel, Field, HttpUrl, field_validator, ValidationInfo
 from enum import Enum
 import logging
 
@@ -37,11 +37,12 @@ class Priority(int, Enum):
 class URL(BaseModel):
     """URL model with metadata for crawling"""
     url: str
-    normalized_url: str = ""  # Normalized version of the URL
-    domain: str = ""  # Domain extracted from the URL
+    normalized_url: str  # Normalized version of the URL
+    domain: str = Field(default="unknown")  # Domain extracted from the URL
     depth: int = 0  # Depth from seed URL
     discovered_at: datetime = Field(default_factory=datetime.now)
     last_crawled: Optional[datetime] = None
+    completed_at: Optional[datetime] = None  # When the URL was completed/failed
     status: URLStatus = URLStatus.PENDING
     priority: Priority = Priority.MEDIUM
     parent_url: Optional[str] = None  # URL that led to this URL
@@ -49,20 +50,72 @@ class URL(BaseModel):
     error: Optional[str] = None  # Error message if failed
     metadata: Dict[str, Any] = Field(default_factory=dict)  # Additional metadata
 
-    @validator("normalized_url", pre=True, always=True)
-    def set_normalized_url(cls, v, values):
-        """Normalize the URL if not already set"""
-        if not v and "url" in values:
-            return normalize_url(values["url"])
-        return v
+    @field_validator("url")
+    @classmethod
+    def validate_url(cls, v: str) -> str:
+        """Validate URL is not empty"""
+        if not v or not v.strip():
+            raise ValueError("URL cannot be empty")
+        return v.strip()
 
-    @validator("domain", pre=True, always=True)
-    def set_domain(cls, v, values):
+    @field_validator("normalized_url", mode="before")
+    @classmethod
+    def set_normalized_url(cls, v: Optional[str], info: ValidationInfo) -> str:
+        """Normalize the URL if not already set"""
+        # If normalized_url is provided and valid, use it
+        if v and v.strip():
+            return v.strip()
+            
+        # Get URL from data
+        url = info.data.get("url", "")
+        if not url:
+            raise ValueError("Cannot normalize empty URL")
+            
+        try:
+            # Try to normalize the URL
+            normalized = normalize_url(url)
+            if not normalized or not normalized.strip():
+                # If normalization fails, use original URL
+                normalized = url
+            return normalized.strip()
+        except Exception as e:
+            logger.error(f"Error normalizing URL {url}: {e}")
+            # If all else fails, use original URL
+            return url
+
+    @field_validator("domain", mode="before")
+    @classmethod
+    def set_domain(cls, v: str, info: ValidationInfo) -> str:
         """Extract domain from URL if not already set"""
-        if not v and "url" in values:
-            parsed = tldextract.extract(values["url"])
-            return f"{parsed.domain}.{parsed.suffix}" if parsed.suffix else parsed.domain
-        return v
+        # If domain is provided and valid, use it
+        if v and v.strip() and v != "unknown":
+            return v.strip()
+            
+        try:
+            url = info.data.get("url", "")
+            if not url:
+                return "unknown"
+                
+            parsed = tldextract.extract(url)
+            domain = f"{parsed.domain}.{parsed.suffix}" if parsed.suffix else parsed.domain
+            return domain.strip() if domain and domain.strip() else "unknown"
+        except Exception as e:
+            logger.error(f"Error extracting domain from URL {info.data.get('url')}: {e}")
+            return "unknown"
+
+    class Config:
+        arbitrary_types_allowed = True
+        validate_assignment = True  # Validate values when attributes are set
+        
+    def __init__(self, **data):
+        # Ensure URL is normalized before calling parent constructor
+        if "url" in data and "normalized_url" not in data:
+            try:
+                data["normalized_url"] = normalize_url(data["url"])
+            except Exception as e:
+                logger.error(f"Error normalizing URL in constructor: {e}")
+                data["normalized_url"] = data["url"]
+        super().__init__(**data)
 
 
 class RobotsInfo(BaseModel):
@@ -73,6 +126,9 @@ class RobotsInfo(BaseModel):
     last_fetched: datetime = Field(default_factory=datetime.now)
     user_agents: Dict[str, Dict[str, Any]] = Field(default_factory=dict)  # Info per user agent
     status_code: Optional[int] = None  # HTTP status code when fetching robots.txt
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 class Page(BaseModel):
@@ -91,6 +147,9 @@ class Page(BaseModel):
     is_duplicate: bool = False  # Whether this is duplicate content
     metadata: Dict[str, Any] = Field(default_factory=dict)  # Additional metadata
 
+    class Config:
+        arbitrary_types_allowed = True
+
 
 class DomainStats(BaseModel):
     """Statistics for a domain"""
@@ -103,6 +162,9 @@ class DomainStats(BaseModel):
     crawl_times: List[float] = Field(default_factory=list)  # Recent crawl times
     errors: Dict[int, int] = Field(default_factory=dict)  # Status code counts for errors
 
+    class Config:
+        arbitrary_types_allowed = True
+
 
 def normalize_url(url: str) -> str:
     """
@@ -114,14 +176,20 @@ def normalize_url(url: str) -> str:
     5. Removing trailing slashes
     6. Adding scheme if missing
     """
+    if not url:
+        raise ValueError("URL cannot be empty")
+        
     try:
+        # Add scheme if missing
+        if not url.startswith(('http://', 'https://')):
+            url = 'http://' + url
+        
         # Parse URL
         parsed = urlparse(url)
         
-        # Add scheme if missing
-        if not parsed.scheme:
-            url = 'http://' + url
-            parsed = urlparse(url)
+        # Validate basic URL structure
+        if not parsed.netloc:
+            raise ValueError(f"Invalid URL structure: {url}")
         
         # Get domain and path
         domain = parsed.netloc.lower()
@@ -154,10 +222,16 @@ def normalize_url(url: str) -> str:
             normalized += f"?{query}"
             
         logger.debug(f"Normalized URL: {url} -> {normalized}")
+        
+        # Final validation
+        if not normalized:
+            raise ValueError(f"Normalization resulted in empty URL: {url}")
+            
         return normalized
         
     except Exception as e:
         logger.error(f"Error normalizing URL {url}: {e}")
+        # Return original URL instead of empty string on error
         return url
 
 

@@ -11,11 +11,12 @@ from typing import List, Dict, Set, Tuple, Optional, Any, Callable
 from concurrent.futures import ThreadPoolExecutor
 import signal
 import json
-import datetime
+from datetime import datetime
 from urllib.parse import urlparse
 import traceback
 from pymongo import MongoClient
-from prometheus_client import Counter, Gauge, Histogram, start_http_server
+from prometheus_client import Counter, Gauge, Histogram, start_http_server, REGISTRY
+import redis
 
 from models import URL, Page, URLStatus, Priority
 from frontier import URLFrontier
@@ -24,6 +25,13 @@ from parser import HTMLParser
 from robots import RobotsHandler
 from dns_resolver import DNSResolver
 import config
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
+
+
+# Check if we're in deployment mode
+IS_DEPLOYMENT = os.getenv('DEPLOYMENT', 'false').lower() == 'true'
 
 # Import local configuration if available
 try:
@@ -59,7 +67,8 @@ class Crawler:
     def __init__(self, 
                  mongo_uri: Optional[str] = None,
                  redis_uri: Optional[str] = None,
-                 metrics_port: int = 9100):
+                 metrics_port: int = 9100,
+                 storage: Optional[Any] = None):
         """
         Initialize the crawler
         
@@ -67,27 +76,37 @@ class Crawler:
             mongo_uri: MongoDB URI for content storage
             redis_uri: Redis URI for URL frontier
             metrics_port: Port for Prometheus metrics server
+            storage: Optional storage backend for deployment mode
         """
-        self.mongo_uri = mongo_uri or config.MONGODB_URI
-        self.redis_uri = redis_uri or config.REDIS_URI
+        self.storage = storage
         self.metrics_port = metrics_port
         
-        # Create components
-        self.frontier = URLFrontier()
+        # Initialize database connections only if not using custom storage
+        if storage is None:
+            self.mongo_uri = mongo_uri or config.MONGODB_URI
+            self.redis_uri = redis_uri or config.REDIS_URI
+            
+            # Connect to MongoDB
+            self.mongo_client = MongoClient(self.mongo_uri)
+            self.db = self.mongo_client[config.MONGODB_DB]
+            self.pages_collection = self.db['pages']
+            self.urls_collection = self.db['urls']
+            self.stats_collection = self.db['stats']
+            
+            # Ensure indexes
+            self._create_indexes()
+            
+            # Create frontier with Redis
+            self.frontier = URLFrontier(redis_client=redis.from_url(self.redis_uri))
+        else:
+            # In deployment mode, use in-memory storage
+            self.frontier = URLFrontier(use_memory=True)
+        
+        # Create other components that don't need database connections
         self.robots_handler = RobotsHandler()
         self.dns_resolver = DNSResolver()
         self.downloader = HTMLDownloader(self.dns_resolver, self.robots_handler)
         self.parser = HTMLParser()
-        
-        # Connect to MongoDB
-        self.mongo_client = MongoClient(self.mongo_uri)
-        self.db = self.mongo_client[config.MONGODB_DB]
-        self.pages_collection = self.db['pages']
-        self.urls_collection = self.db['urls']
-        self.stats_collection = self.db['stats']
-        
-        # Ensure indexes
-        self._create_indexes()
         
         # Initialize statistics
         self.stats = {
@@ -101,8 +120,19 @@ class Crawler:
             'status_codes': {},
         }
         
-        # Set up metrics
-        self._setup_metrics()
+        # Set up metrics only in local mode
+        if not IS_DEPLOYMENT:
+            self._setup_metrics()
+        else:
+            # In deployment mode, use dummy metrics that do nothing
+            self.pages_crawled_counter = DummyMetric()
+            self.pages_failed_counter = DummyMetric()
+            self.urls_discovered_counter = DummyMetric()
+            self.urls_filtered_counter = DummyMetric()
+            self.frontier_size_gauge = DummyMetric()
+            self.active_threads_gauge = DummyMetric()
+            self.download_time_histogram = DummyMetric()
+            self.page_size_histogram = DummyMetric()
         
         # Flag to control crawling
         self.running = False
@@ -122,8 +152,15 @@ class Crawler:
             self.pages_collection.create_index('crawled_at')
             
             # URLs collection indexes
+            # Drop existing indexes to ensure clean state
+            self.urls_collection.drop_indexes()
+            
+            # Create new indexes
             self.urls_collection.create_index('url', unique=True)
-            self.urls_collection.create_index('normalized_url', unique=True)
+            self.urls_collection.create_index([
+                ('normalized_url', 1),
+                ('domain', 1)
+            ], unique=True, sparse=True)  # sparse=True means index will skip documents where normalized_url is null
             self.urls_collection.create_index('domain')
             self.urls_collection.create_index('status')
             self.urls_collection.create_index('priority')
@@ -134,6 +171,17 @@ class Crawler:
     
     def _setup_metrics(self):
         """Set up Prometheus metrics"""
+        # Clean up any existing metrics
+        collectors_to_remove = []
+        for collector in REGISTRY._collector_to_names:
+            for name in REGISTRY._collector_to_names[collector]:
+                if name.startswith('crawler_'):
+                    collectors_to_remove.append(collector)
+                    break
+        
+        for collector in collectors_to_remove:
+            REGISTRY.unregister(collector)
+        
         # Counters
         self.pages_crawled_counter = Counter('crawler_pages_crawled_total', 'Total pages crawled')
         self.pages_failed_counter = Counter('crawler_pages_failed_total', 'Total pages failed')
@@ -175,13 +223,18 @@ class Crawler:
                 depth=0  # Seed URLs are at depth 0
             )
             
-            # Save URL to database
+            # Save URL based on storage mode
             try:
-                self.urls_collection.update_one(
-                    {'url': url},
-                    {'$set': url_obj.dict()},
-                    upsert=True
-                )
+                if self.storage is not None:
+                    # Use custom storage in deployment mode
+                    self.storage.add_url(url_obj)
+                else:
+                    # Use MongoDB in local mode
+                    self.urls_collection.update_one(
+                        {'url': url},
+                        {'$set': url_obj.dict()},
+                        upsert=True
+                    )
             except Exception as e:
                 logger.error(f"Error saving seed URL to database: {e}")
             
@@ -485,13 +538,20 @@ class Crawler:
             True if content is a duplicate, False otherwise
         """
         try:
-            # Check if content hash exists in database
-            existing = self.pages_collection.find_one(
-                {'content_hash': content_hash, 'url': {'$ne': url}}
-            )
-            return existing is not None
+            if self.storage is not None:
+                # Use custom storage - simplified duplicate check
+                for page in self.storage.pages.values():
+                    if page.content_hash == content_hash and page.url != url:
+                        return True
+                return False
+            else:
+                # Use MongoDB
+                return self.pages_collection.find_one({
+                    'content_hash': content_hash,
+                    'url': {'$ne': url}
+                }) is not None
         except Exception as e:
-            logger.error(f"Error checking duplicate content: {e}")
+            logger.error(f"Error checking for duplicate content: {e}")
             return False
     
     def _process_extracted_urls(self, urls: List[str], parent_url_obj: URL, metadata: Dict[str, Any]) -> None:
@@ -512,37 +572,66 @@ class Crawler:
             return
         
         for url in urls:
-            # Calculate priority based on URL and metadata
-            priority = self.parser.calculate_priority(url, metadata)
-            
-            # Create URL object
-            url_obj = URL(
-                url=url,
-                status=URLStatus.PENDING,
-                priority=priority,
-                depth=parent_depth + 1,
-                parent_url=parent_url
-            )
-            
-            # Add to frontier
-            if self.frontier.add_url(url_obj):
-                # URL was added to frontier
-                self.urls_discovered_counter.inc()
-                self.stats['urls_discovered'] += 1
+            try:
+                # Calculate priority based on URL and metadata
+                priority = self.parser.calculate_priority(url, metadata)
                 
-                # Save URL to database
-                try:
-                    self.urls_collection.update_one(
-                        {'url': url},
-                        {'$set': url_obj.dict()},
-                        upsert=True
-                    )
-                except Exception as e:
-                    logger.error(f"Error saving URL to database: {e}")
-            else:
-                # URL was not added (filtered or duplicate)
-                self.urls_filtered_counter.inc()
-                self.stats['urls_filtered'] += 1
+                # Create URL object
+                url_obj = URL(
+                    url=url,
+                    status=URLStatus.PENDING,
+                    priority=priority,
+                    depth=parent_depth + 1,
+                    parent_url=parent_url
+                )
+                
+                # Skip if normalized URL is empty
+                if not url_obj.normalized_url:
+                    logger.warning(f"Skipping URL with empty normalized form: {url}")
+                    continue
+                
+                # Add to frontier
+                if self.frontier.add_url(url_obj):
+                    # URL was added to frontier
+                    self.urls_discovered_counter.inc()
+                    self.stats['urls_discovered'] += 1
+                    
+                    # Save URL based on storage mode
+                    try:
+                        if self.storage is not None:
+                            # Use custom storage in deployment mode
+                            self.storage.add_url(url_obj)
+                        else:
+                            # Use MongoDB in local mode
+                            # First try to find existing URL
+                            existing = self.urls_collection.find_one({
+                                'normalized_url': url_obj.normalized_url,
+                                'domain': url_obj.domain
+                            })
+                            
+                            if existing:
+                                # Update only if new URL has higher priority
+                                if url_obj.priority.value < existing['priority']:
+                                    self.urls_collection.update_one(
+                                        {'_id': existing['_id']},
+                                        {'$set': {
+                                            'priority': url_obj.priority.value,
+                                            'parent_url': url_obj.parent_url,
+                                            'depth': url_obj.depth
+                                        }}
+                                    )
+                            else:
+                                # Insert new URL
+                                self.urls_collection.insert_one(url_obj.dict())
+                    except Exception as e:
+                        logger.error(f"Error saving URL to database: {e}")
+                else:
+                    # URL was not added (filtered or duplicate)
+                    self.urls_filtered_counter.inc()
+                    self.stats['urls_filtered'] += 1
+            except Exception as e:
+                logger.error(f"Error processing URL {url}: {e}")
+                continue
     
     def _mark_url_completed(self, url_obj: URL) -> None:
         """
@@ -553,16 +642,18 @@ class Crawler:
         """
         try:
             url_obj.status = URLStatus.COMPLETED
-            url_obj.last_crawled = datetime.datetime.now()
+            url_obj.completed_at = datetime.now()
             
-            # Update in database
-            self.urls_collection.update_one(
-                {'url': url_obj.url},
-                {'$set': {
-                    'status': url_obj.status,
-                    'last_crawled': url_obj.last_crawled
-                }}
-            )
+            if self.storage is not None:
+                # Use custom storage
+                self.storage.add_url(url_obj)
+            else:
+                # Use MongoDB
+                self.urls_collection.update_one(
+                    {'url': url_obj.url},
+                    {'$set': url_obj.dict()},
+                    upsert=True
+                )
         except Exception as e:
             logger.error(f"Error marking URL as completed: {e}")
     
@@ -577,19 +668,18 @@ class Crawler:
         try:
             url_obj.status = URLStatus.FAILED
             url_obj.error = error
-            url_obj.last_crawled = datetime.datetime.now()
-            url_obj.retries += 1
+            url_obj.completed_at = datetime.now()
             
-            # Update in database
-            self.urls_collection.update_one(
-                {'url': url_obj.url},
-                {'$set': {
-                    'status': url_obj.status,
-                    'error': url_obj.error,
-                    'last_crawled': url_obj.last_crawled,
-                    'retries': url_obj.retries
-                }}
-            )
+            if self.storage is not None:
+                # Use custom storage
+                self.storage.add_url(url_obj)
+            else:
+                # Use MongoDB
+                self.urls_collection.update_one(
+                    {'url': url_obj.url},
+                    {'$set': url_obj.dict()},
+                    upsert=True
+                )
             
             # If retries not exceeded, add back to frontier with lower priority
             if url_obj.retries < config.RETRY_TIMES:
@@ -612,33 +702,50 @@ class Crawler:
             page: Page object to store
         """
         try:
-            # Convert page to dict for MongoDB
-            page_dict = page.dict()
-            
-            # Store in MongoDB
-            self.pages_collection.update_one(
-                {'url': page.url},
-                {'$set': page_dict},
-                upsert=True
-            )
+            if self.storage is not None:
+                # Use custom storage in deployment mode
+                self.storage.add_page(page)
+            else:
+                # Use MongoDB in local mode
+                self.pages_collection.update_one(
+                    {'url': page.url},
+                    {'$set': page.dict()},
+                    upsert=True
+                )
             
             # Optionally store HTML content on disk
             if not page.is_duplicate:
-                domain = self._extract_domain(page.url)
-                domain_dir = os.path.join(config.HTML_STORAGE_PATH, domain)
-                os.makedirs(domain_dir, exist_ok=True)
-                
-                # Create filename from URL
-                filename = self._url_to_filename(page.url)
-                filepath = os.path.join(domain_dir, filename)
-                
-                # Write HTML to file
-                with open(filepath, 'w', encoding='utf-8') as f:
-                    f.write(page.content)
-                
-                logger.debug(f"Stored HTML content for {page.url} at {filepath}")
+                if IS_DEPLOYMENT:
+                    # In deployment mode, store in temporary directory
+                    domain_dir = os.path.join(config.HTML_STORAGE_PATH, self._extract_domain(page.url))
+                    os.makedirs(domain_dir, exist_ok=True)
+                    
+                    # Create filename from URL
+                    filename = self._url_to_filename(page.url)
+                    filepath = os.path.join(domain_dir, filename)
+                    
+                    # Write HTML to file
+                    with open(filepath, 'w', encoding='utf-8') as f:
+                        f.write(page.content)
+                    
+                    logger.debug(f"Stored HTML content for {page.url} at {filepath}")
+                else:
+                    # In local mode, store in permanent storage
+                    domain = self._extract_domain(page.url)
+                    domain_dir = os.path.join(config.HTML_STORAGE_PATH, domain)
+                    os.makedirs(domain_dir, exist_ok=True)
+                    
+                    # Create filename from URL
+                    filename = self._url_to_filename(page.url)
+                    filepath = os.path.join(domain_dir, filename)
+                    
+                    # Write HTML to file
+                    with open(filepath, 'w', encoding='utf-8') as f:
+                        f.write(page.content)
+                    
+                    logger.debug(f"Stored HTML content for {page.url} at {filepath}")
         except Exception as e:
-            logger.error(f"Error storing page {page.url}: {e}")
+            logger.error(f"Error storing page: {e}")
     
     def _extract_domain(self, url: str) -> str:
         """Extract domain from URL"""
@@ -698,9 +805,10 @@ class Crawler:
         try:
             stats_copy = self.stats.copy()
             stats_copy['domains_crawled'] = list(stats_copy['domains_crawled'])
-            stats_copy['timestamp'] = datetime.datetime.now()
+            stats_copy['timestamp'] = datetime.now()
             
-            self.stats_collection.insert_one(stats_copy)
+            if self.storage is None:  # Only save to MongoDB in local mode
+                self.stats_collection.insert_one(stats_copy)
         except Exception as e:
             logger.error(f"Error saving statistics to database: {e}")
     
@@ -748,7 +856,7 @@ class Crawler:
         try:
             stats_copy = self.stats.copy()
             stats_copy['domains_crawled'] = list(stats_copy['domains_crawled'])
-            stats_copy['checkpoint_time'] = datetime.datetime.now()
+            stats_copy['checkpoint_time'] = datetime.now()
             
             with open(os.path.join(config.STORAGE_PATH, 'crawler_stats.json'), 'w') as f:
                 json.dump(stats_copy, f)
@@ -804,6 +912,20 @@ class Crawler:
         self.paused = False
         
         logger.info("Crawler stopped")
+
+
+# Dummy metric class for deployment mode
+class DummyMetric:
+    """A dummy metric that does nothing"""
+    def inc(self, *args, **kwargs): pass
+    def dec(self, *args, **kwargs): pass
+    def set(self, *args, **kwargs): pass
+    def observe(self, *args, **kwargs): pass
+    def time(self): return self.Timer()
+    
+    class Timer:
+        def __enter__(self): pass
+        def __exit__(self, exc_type, exc_val, exc_tb): pass
 
 
 if __name__ == "__main__":

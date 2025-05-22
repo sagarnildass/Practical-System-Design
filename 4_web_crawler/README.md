@@ -1,3 +1,9 @@
+---
+title: AI_SEO_Crawler
+app_file: seo_analyzer_ui.py
+sdk: gradio
+sdk_version: 5.30.0
+---
 # Web Crawler Documentation
 
 A scalable web crawler with configurability, politeness, and content extraction capabilities.

@@ -5,7 +5,7 @@ SEO Analyzer UI using Gradio, Web Crawler, and OpenAI
 import gradio as gr
 import logging
 import json
-from typing import Dict, List, Any, Tuple
+from typing import Dict, List, Any, Tuple, Optional
 from urllib.parse import urlparse
 import tldextract
 from openai import OpenAI
@@ -17,10 +17,19 @@ import shutil
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
+import tempfile
 
 from crawler import Crawler
+from frontier import URLFrontier
 from models import URL, Page
 import config
+from run_crawler import reset_databases
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
+
+# Check if we're in deployment mode (e.g., Hugging Face Spaces)
+IS_DEPLOYMENT = os.getenv('DEPLOYMENT', 'false').lower() == 'true'
 
 # Custom CSS for better styling
 CUSTOM_CSS = """
@@ -164,6 +173,30 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+logger.info(f"IS_DEPLOYMENT: {IS_DEPLOYMENT}")
+
+class InMemoryStorage:
+    """Simple in-memory storage for deployment mode"""
+    def __init__(self):
+        self.urls = {}
+        self.pages = {}
+        
+    def reset(self):
+        self.urls.clear()
+        self.pages.clear()
+        
+    def add_url(self, url_obj):
+        self.urls[url_obj.url] = url_obj
+        
+    def add_page(self, page_obj):
+        self.pages[page_obj.url] = page_obj
+        
+    def get_url(self, url):
+        return self.urls.get(url)
+        
+    def get_page(self, url):
+        return self.pages.get(url)
+
 class SEOAnalyzer:
     """
     SEO Analyzer that combines web crawler with OpenAI analysis
@@ -172,13 +205,14 @@ class SEOAnalyzer:
     def __init__(self, api_key: str):
         """Initialize SEO Analyzer"""
         self.client = OpenAI(api_key=api_key)
-        self.crawler = None  # Initialize crawler per analysis
+        self.crawler = None
         self.crawled_pages = []
         self.pages_crawled = 0
         self.max_pages = 0
         self.crawl_complete = threading.Event()
-        self.log_queue = queue.Queue(maxsize=1000)  # Store last 1000 log messages
-        self.session_id = str(uuid.uuid4())  # Generate unique session ID
+        self.log_queue = queue.Queue(maxsize=1000)
+        self.session_id = str(uuid.uuid4())
+        self.storage = InMemoryStorage() if IS_DEPLOYMENT else None
         
         # Add queue handler to logger
         queue_handler = QueueHandler(self.log_queue)
@@ -215,6 +249,13 @@ class SEOAnalyzer:
         except Exception as e:
             logger.error(f"Error cleaning up session storage: {e}")
             
+    def _reset_storage(self):
+        """Reset storage based on deployment mode"""
+        if IS_DEPLOYMENT:
+            self.storage.reset()
+        else:
+            reset_databases()
+
     def analyze_website(self, url: str, max_pages: int = 10, progress: gr.Progress = gr.Progress()) -> Tuple[str, List[Dict], str]:
         """
         Crawl website and analyze SEO using OpenAI
@@ -234,8 +275,17 @@ class SEOAnalyzer:
             self.max_pages = max_pages
             self.crawl_complete.clear()
             
-            # Set up session storage
-            session_storage, session_html, session_logs = self._setup_session_storage()
+            # Set up storage
+            if IS_DEPLOYMENT:
+                # Use temporary directory for file storage in deployment
+                temp_dir = tempfile.mkdtemp()
+                session_storage = temp_dir
+                session_html = os.path.join(temp_dir, "html")
+                session_logs = os.path.join(temp_dir, "logs")
+                os.makedirs(session_html, exist_ok=True)
+                os.makedirs(session_logs, exist_ok=True)
+            else:
+                session_storage, session_html, session_logs = self._setup_session_storage()
             
             # Update config paths for this session
             config.HTML_STORAGE_PATH = session_html
@@ -247,17 +297,26 @@ class SEOAnalyzer:
             
             logger.info(f"Starting analysis of {url} with max_pages={max_pages}")
             
-            # Create new crawler instance for this analysis
-            self.crawler = Crawler()
+            # Reset storage
+            logger.info("Resetting storage...")
+            self._reset_storage()
+            logger.info("Storage reset completed")
+            
+            # Create new crawler instance with appropriate storage
+            logger.info("Creating crawler instance...")
+            if IS_DEPLOYMENT:
+                # In deployment mode, use in-memory storage
+                self.crawler = Crawler(storage=self.storage)
+                # Set frontier to use memory mode
+                self.crawler.frontier = URLFrontier(use_memory=True)
+            else:
+                # In local mode, use MongoDB and Redis
+                self.crawler = Crawler()
+            logger.info("Crawler instance created successfully")
             
             # Extract domain for filtering
             domain = self._extract_domain(url)
             logger.info(f"Analyzing domain: {domain}")
-            
-            # Reset databases
-            from run_crawler import reset_databases
-            reset_databases()
-            logger.info("Reset databases completed")
             
             # Add seed URL and configure domain filter
             self.crawler.add_seed_urls([url])
@@ -274,21 +333,35 @@ class SEOAnalyzer:
                 
                 original_process_url(url_obj)
                 
-                # Get the page from MongoDB
-                page_data = self.crawler.pages_collection.find_one({'url': url_obj.url})
-                if page_data and page_data.get('content'):
-                    _, metadata = self.crawler.parser.parse(Page(**page_data))
-                    self.crawled_pages.append({
-                        'url': url_obj.url,
-                        'content': page_data['content'],
-                        'metadata': metadata
-                    })
-                    self.pages_crawled += 1
-                    logger.info(f"Crawled page {self.pages_crawled}/{max_pages}: {url_obj.url}")
+                # Get the page based on storage mode
+                if IS_DEPLOYMENT:
+                    # In deployment mode, get page from in-memory storage
+                    page = self.storage.get_page(url_obj.url)
+                    if page:
+                        _, metadata = self.crawler.parser.parse(page)
+                        self.crawled_pages.append({
+                            'url': url_obj.url,
+                            'content': page.content,
+                            'metadata': metadata
+                        })
+                        self.pages_crawled += 1
+                        logger.info(f"Crawled page {self.pages_crawled}/{max_pages}: {url_obj.url}")
+                else:
+                    # In local mode, get page from MongoDB
+                    page_data = self.crawler.pages_collection.find_one({'url': url_obj.url})
+                    if page_data and page_data.get('content'):
+                        _, metadata = self.crawler.parser.parse(Page(**page_data))
+                        self.crawled_pages.append({
+                            'url': url_obj.url,
+                            'content': page_data['content'],
+                            'metadata': metadata
+                        })
+                        self.pages_crawled += 1
+                        logger.info(f"Crawled page {self.pages_crawled}/{max_pages}: {url_obj.url}")
                     
-                    if self.pages_crawled >= self.max_pages:
-                        self.crawler.running = False  # Signal crawler to stop
-                        self.crawl_complete.set()
+                if self.pages_crawled >= self.max_pages:
+                    self.crawler.running = False  # Signal crawler to stop
+                    self.crawl_complete.set()
             
             self.crawler._process_url = wrapped_process_url
             
@@ -318,9 +391,13 @@ class SEOAnalyzer:
             # Wait for completion or timeout with progress updates
             timeout = 300  # 5 minutes
             start_time = time.time()
+            last_progress = 0
             while not self.crawl_complete.is_set() and time.time() - start_time < timeout:
-                progress(self.pages_crawled / max_pages, f"Crawled {self.pages_crawled}/{max_pages} pages")
-                time.sleep(0.5)
+                current_progress = min(0.8, self.pages_crawled / max_pages)
+                if current_progress != last_progress:
+                    progress(current_progress, f"Crawled {self.pages_crawled}/{max_pages} pages")
+                    last_progress = current_progress
+                time.sleep(0.1)  # More frequent updates
             
             if time.time() - start_time >= timeout:
                 logger.warning("Crawler timed out")
@@ -347,6 +424,7 @@ class SEOAnalyzer:
             
             # Analyze crawled pages with OpenAI
             overall_analysis = self._get_overall_analysis(self.crawled_pages)
+            progress(0.95, "Generating page-specific analyses...")
             page_analyses = self._get_page_analyses(self.crawled_pages)
             
             logger.info("Analysis complete")
@@ -367,15 +445,27 @@ class SEOAnalyzer:
 {page_analysis['analysis']}
 """
             
-            # Clean up session storage after successful analysis
-            self._cleanup_session_storage()
+            # Clean up all resources
+            logger.info("Cleaning up resources...")
+            if IS_DEPLOYMENT:
+                shutil.rmtree(temp_dir, ignore_errors=True)
+                self.storage.reset()
+            else:
+                self._cleanup_session_storage()
+                self._reset_storage()
+            logger.info("All resources cleaned up")
             
             return formatted_analysis, page_analyses, log_output
             
         except Exception as e:
             logger.error(f"Error analyzing website: {e}")
-            # Clean up session storage on error
-            self._cleanup_session_storage()
+            # Clean up all resources even on error
+            if IS_DEPLOYMENT:
+                shutil.rmtree(temp_dir, ignore_errors=True)
+                self.storage.reset()
+            else:
+                self._cleanup_session_storage()
+                self._reset_storage()
             # Collect all logs
             logs = []
             while not self.log_queue.empty():
@@ -490,11 +580,30 @@ def create_ui() -> gr.Interface:
     def analyze(url: str, api_key: str, max_pages: int, progress: gr.Progress = gr.Progress()) -> Tuple[str, str]:
         """Gradio interface function"""
         try:
+            # Initialize analyzer
             analyzer = SEOAnalyzer(api_key)
+            
+            # Run analysis with progress updates
             analysis, _, logs = analyzer.analyze_website(url, max_pages, progress)
-            return analysis, logs
+            
+            # Collect all logs
+            log_output = ""
+            while not analyzer.log_queue.empty():
+                try:
+                    log_output += analyzer.log_queue.get_nowait() + "\n"
+                except queue.Empty:
+                    break
+            
+            # Set progress to complete
+            progress(1.0, "Analysis complete")
+            
+            # Return results
+            return analysis, log_output
+            
         except Exception as e:
-            return f"Error: {str(e)}", str(e)
+            error_msg = f"Error: {str(e)}"
+            logger.error(error_msg)
+            return error_msg, error_msg
 
     # Create markdown content for the about section
     about_markdown = """
